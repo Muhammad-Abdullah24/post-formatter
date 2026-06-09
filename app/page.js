@@ -249,7 +249,7 @@ export default function Home() {
             <span className="hero-title-accent">Formatter</span>
           </h1>
           <p className="hero-sub">
-            Write, format, and preview your posts — before you publish.
+            Write, format, and preview your posts before you publish.
             See exactly where your content folds, score your hook, and publish with confidence.
           </p>
         </div>
