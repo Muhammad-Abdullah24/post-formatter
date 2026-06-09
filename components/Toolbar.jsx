@@ -124,7 +124,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   }
 
   return (
-    <div style={{ borderBottom: '1px solid var(--glass-border)', background: 'rgba(27,184,189,0.02)' }}>
+    <div style={{ borderBottom: '1px solid var(--glass-border)' }}>
 
       {/* Tool row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '10px 20px', flexWrap: 'wrap' }}>
@@ -158,7 +158,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           onClick={onFormatOpen}
           disabled={!text.trim() || text.trim().length < 30}
           className="tb-btn tb-btn-format"
-          style={{ width: 'auto', padding: '0 10px', gap: 6, fontSize: 10, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, letterSpacing: '0.08em' }}
+          style={{ width: 'auto', padding: '0 10px', gap: 6, fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em' }}
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -175,7 +175,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
             onClick={fetchHooks}
             disabled={!text.trim() || text.trim().length < 20}
             className="tb-btn"
-            style={{ width: 'auto', padding: '0 10px', gap: 6, fontSize: 10, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, letterSpacing: '0.08em' }}
+            style={{ width: 'auto', padding: '0 10px', gap: 6, fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em' }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -186,11 +186,11 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           {hookOpen && (
             <div className="popover anim-slide-down" style={{ top: 36, left: 0, width: 380, maxWidth: 'calc(100vw - 40px)' }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(27,184,189,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <span style={{ fontSize: 9, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, letterSpacing: '0.18em', color: '#1BB8BD', textTransform: 'uppercase' }}>Hook Suggestions</span>
+                <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.18em', color: '#1BB8BD', textTransform: 'uppercase' }}>Hook Suggestions</span>
                 {!hooksLoading && (
                   <button
                     onClick={fetchHooks}
-                    style={{ fontSize: 10, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, color: '#1BB8BD', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.06em' }}
+                    style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: '#1BB8BD', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.06em' }}
                   >
                     Regenerate
                   </button>
@@ -207,7 +207,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                   <button
                     key={i}
                     onClick={() => applyHook(hook.text)}
-                    style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: 'pointer', fontSize: 13, color: 'var(--ink)', lineHeight: 1.5, fontFamily: 'Roboto, sans-serif', transition: 'all 0.15s', width: '100%' }}
+                    style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: 'pointer', fontSize: 13, color: 'var(--ink)', lineHeight: 1.5, fontFamily: 'Inter, sans-serif', transition: 'all 0.15s', width: '100%' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,184,189,0.08)'; e.currentTarget.style.borderColor = 'rgba(27,184,189,0.4)'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'var(--glass-bg)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
                   >
@@ -244,7 +244,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    style={{ padding: '3px 10px', borderRadius: 99, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700, fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.06em', whiteSpace: 'nowrap', background: activeCategory === cat ? 'linear-gradient(135deg, #1BB8BD, #DC0078)' : 'transparent', color: activeCategory === cat ? '#fff' : 'var(--ink-tertiary)', transition: 'all 0.15s' }}
+                    style={{ padding: '3px 10px', borderRadius: 99, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700, fontFamily: 'Outfit, sans-serif', letterSpacing: '0.06em', whiteSpace: 'nowrap', background: activeCategory === cat ? 'linear-gradient(135deg, #1BB8BD, #DC0078)' : 'transparent', color: activeCategory === cat ? '#fff' : 'var(--ink-tertiary)', transition: 'all 0.15s' }}
                   >
                     {cat}
                   </button>
@@ -276,12 +276,12 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
             { label: `${words} words` },
             { label: `${readTime} min read` },
           ].map(s => (
-            <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
+            <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
               {s.label}
             </span>
           ))}
           {readability && (
-            <span style={{ fontSize: 10, fontFamily: 'Montserrat, sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: readability.color }}>
+            <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: readability.color }}>
               {readability.label.toUpperCase()} READ
             </span>
           )}

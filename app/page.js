@@ -239,9 +239,10 @@ export default function Home() {
       {/* ── Hero ── */}
       <header className="hero anim-fade-up-2">
         <div className="container">
-          <div className="hero-eyebrow">
-            <span className="hero-eyebrow-dot" />
-            Free tool by Hirenum
+          <div className="hero-eyebrow-clean">
+            <span>Free tool by <span className="brand-accent">Hirenum</span></span>
+            <span className="bullet-sep">•</span>
+            <span>No registration required</span>
           </div>
           <h1 className="hero-title">
             LinkedIn Post{' '}
@@ -251,26 +252,6 @@ export default function Home() {
             Write, format, and preview your posts — before you publish.
             See exactly where your content folds, score your hook, and publish with confidence.
           </p>
-          <div className="hero-meta">
-            <span className="badge badge-neutral">Free</span>
-            <span className="badge badge-neutral">No login needed</span>
-            {analysis && (
-              <span
-                className="badge"
-                style={{
-                  background: analysis.hookStrength.score === 'strong' ? 'rgba(16,185,129,0.1)'
-                    : analysis.hookStrength.score === 'bad' ? 'rgba(239,68,68,0.1)'
-                    : 'rgba(245,158,11,0.1)',
-                  color: analysis.hookStrength.score === 'strong' ? 'var(--success)'
-                    : analysis.hookStrength.score === 'bad' ? 'var(--danger)'
-                    : 'var(--warning)',
-                  border: `1px solid ${analysis.hookStrength.score === 'strong' ? 'rgba(16,185,129,0.25)' : analysis.hookStrength.score === 'bad' ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.25)'}`,
-                }}
-              >
-                {analysis.hookStrength.message}
-              </span>
-            )}
-          </div>
         </div>
       </header>
 
@@ -404,7 +385,7 @@ export default function Home() {
                         : analysis.hookStrength.score === 'bad' ? 'var(--danger)'
                         : 'var(--warning)',
                       fontSize: 13,
-                      fontFamily: 'Roboto, sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       lineHeight: 1.6,
                     }}>
                       {analysis.hookStrength.message}

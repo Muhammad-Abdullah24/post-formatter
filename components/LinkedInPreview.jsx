@@ -3,16 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getFoldAnalysis } from '@/lib/foldline';
 
-const DESKTOP_FOLD = 210;
-
-function getFoldPreview(text) {
-  if (text.length <= DESKTOP_FOLD) return text;
-  let cut = text.slice(0, DESKTOP_FOLD);
-  const lastSpace = cut.lastIndexOf(' ');
-  if (lastSpace > DESKTOP_FOLD * 0.65) cut = cut.slice(0, lastSpace);
-  return cut.trimEnd();
-}
-
+/* ─── Text renderer — hashtag highlighting ─── */
 function renderFormattedText(text) {
   const parts = text.split(/(#[\w\u00C0-\u024F]+)/g);
   return parts.map((part, i) =>
@@ -22,38 +13,112 @@ function renderFormattedText(text) {
   );
 }
 
-function GlobeIcon() {
+/* ─── Mobile outline icon ─── */
+function MobileIcon() {
   return (
-    <svg className="li-globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-      <circle cx="8" cy="8" r="8" fill="currentColor" />
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+      <rect x="5" y="2" width="14" height="20" rx="2" />
+      <path d="M12 18h.01" />
+    </svg>
+  );
+}
+
+/* ─── Desktop outline icon ─── */
+function DesktopIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+    </svg>
+  );
+}
+
+/* ─── LinkedIn Premium gold "in" logo ─── */
+function LinkedInLogo() {
+  return (
+    <svg
+      className="li-in-logo"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      aria-label="LinkedIn"
+    >
+      <rect width="24" height="24" rx="4" fill="#A37C27" />
+      <rect x="0.5" y="0.5" width="23" height="23" rx="3.5"
+        fill="url(#liGold)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+      <defs>
+        <linearGradient id="liGold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F0C040" />
+          <stop offset="50%" stopColor="#C89B2A" />
+          <stop offset="100%" stopColor="#A37C27" />
+        </linearGradient>
+      </defs>
+      {/* "i" */}
+      <rect x="5" y="10" width="3" height="9" rx="0.5" fill="#fff" />
+      <rect x="5" y="6.5" width="3" height="2.5" rx="0.5" fill="#fff" />
+      {/* "n" */}
+      <rect x="10" y="10" width="2.8" height="9" rx="0.5" fill="#fff" />
       <path
+        d="M12.8 13.2 C12.8 11.4 13.9 10 15.6 10 C17.2 10 18 11.2 18 13V19 H15.2 V13.5 C15.2 12.8 14.8 12.3 14.2 12.3 C13.5 12.3 12.8 12.8 12.8 13.6 Z"
         fill="#fff"
-        d="M5.8 2.8C4.5 3.2 3.5 4.2 3.2 5.5 2.9 6.8 3.1 8.2 3.8 9.4 4.3 10.2 5.2 10.8 6.2 11.1 7 11.3 7.8 11 8.3 10.3 8.8 9.6 9 8.6 8.9 7.6 8.7 6.2 8.2 5 7.3 4.1 6.6 3.5 5.8 2.8Z"
-      />
-      <path
-        fill="#fff"
-        d="M9.9 4.4C10.5 4.2 11.1 4.5 11.5 5 11.9 5.5 11.9 6.2 11.6 6.7 11.3 7.2 10.7 7.5 10.1 7.6 9.6 7.7 9.1 7.4 8.8 6.9 8.5 6.3 8.6 5.6 8.9 5.1 9.2 4.6 9.5 4.4 9.9 4.4Z"
       />
     </svg>
   );
 }
 
+/* ─── LinkedIn Verification Shield Badge ─── */
+function VerificationBadge() {
+  return (
+    <svg
+      className="li-verified-badge"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-label="Verified"
+    >
+      <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+      <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+    </svg>
+  );
+}
+
+/* ─── Globe icon (public) ─── */
+function GlobeIcon() {
+  return (
+    <svg className="li-globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true">
+      <path fill="currentColor" fillRule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zm5.44 4.496h-2.074c-.225-1.082-.57-1.998-1.006-2.64A6.444 6.444 0 0113.44 4.496zM8 1.6c.603.706 1.078 1.822 1.35 3.13H6.65C6.922 3.423 7.397 2.306 8 1.6zM1.648 9.6A6.476 6.476 0 011.6 8c0-.55.074-1.085.213-1.6h2.361A13.49 13.49 0 004.1 8c0 .544.027 1.077.075 1.6H1.648zm.913 1.6h2.073c.225 1.082.57 1.998 1.006 2.64A6.444 6.444 0 012.56 11.2zm2.073-6.704H2.56a6.444 6.444 0 013.08-2.64c-.436.642-.781 1.558-1.006 2.64zM8 14.4c-.603-.706-1.078-1.822-1.35-3.13h2.7C9.078 12.577 8.603 13.694 8 14.4zM6.524 9.6A11.84 11.84 0 016.45 8c0-.546.027-1.08.074-1.6h2.951A11.84 11.84 0 019.55 8c0 .544-.025 1.077-.074 1.6H6.524zm.127 1.6h2.698c-.272 1.307-.747 2.424-1.35 3.13-.602-.706-1.077-1.823-1.348-3.13zm3.716 2.64c.436-.642.78-1.558 1.006-2.64h2.073a6.444 6.444 0 01-3.08 2.64zM11.826 9.6A13.49 13.49 0 0011.9 8a13.49 13.49 0 00-.075-1.6h2.362c.138.515.213 1.05.213 1.6 0 .55-.075 1.085-.213 1.6h-2.362z"/>
+    </svg>
+  );
+}
+
+/* ─── Reaction emoji bubbles ─── */
 function ReactionStack() {
   return (
     <div className="li-reaction-stack">
-      <span className="li-reaction-bubble li-reaction-like" aria-hidden="true">
-        <svg viewBox="0 0 16 16" width="11" height="11" fill="none">
+      {/* Like */}
+      <span className="li-reaction-bubble li-reaction-like" title="Like">
+        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
           <path
             fill="#fff"
-            d="M12.78 5.25h-1.5c-.4 0-.73-.28-.82-.66l-.35-1.58A1.25 1.25 0 009.28 2h-.03A1.25 1.25 0 007 3.25v2.5H5.22A1.22 1.22 0 004 6.97v.03l.66 4.08A1.22 1.22 0 005.85 12h6.03a1.5 1.5 0 001.47-1.23l.58-3.27a1.25 1.25 0 00-1.15-1.25z"
+            d="M12 6h-2.5c-.2 0-.4-.1-.4-.3l-.4-1.8c-.2-.7-.7-1.1-1.3-1.1h-.1c-.7 0-1.2.5-1.2 1.2v2H5c-.6 0-1.1.5-1.1 1.1v.1l.7 4.2c.1.7.7 1.2 1.4 1.2h4.1c.6 0 1.1-.5 1.2-1.1l.6-3.3c.1-.8-.4-1.5-1.2-1.5z"
           />
         </svg>
       </span>
-      <span className="li-reaction-bubble li-reaction-love" aria-hidden="true">
-        <svg viewBox="0 0 16 16" width="11" height="11" fill="none">
+      {/* Love */}
+      <span className="li-reaction-bubble li-reaction-love" title="Love">
+        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
           <path
             fill="#fff"
-            d="M11.63 3.5c-1.15 0-2.08.58-2.63 1.43-.55-.85-1.48-1.43-2.63-1.43-1.72 0-3.12 1.4-3.12 3.12 0 3.08 5.12 6.08 5.38 6.28.1.08.22.12.37.12s.27-.04.37-.12c.26-.2 5.38-3.2 5.38-6.28 0-1.72-1.4-3.12-3.12-3.12z"
+            d="M8 13.5c-.1 0-.2 0-.3-.1C7.5 13.2 3.6 9.9 3.6 6.6c0-1.8 1.4-3.3 3.2-3.3 1.2 0 2.3.7 2.8 1.8.5-1.1 1.6-1.8 2.8-1.8 1.8 0 3.2 1.5 3.2 3.3 0 3.3-3.9 6.6-4.1 6.8-.1.1-.2.1-.3.1z"
+          />
+        </svg>
+      </span>
+      {/* Insightful */}
+      <span className="li-reaction-bubble li-reaction-insight" title="Insightful">
+        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
+          <path
+            fill="#fff"
+            d="M8 2a3.5 3.5 0 0 0-3.5 3.5c0 1.4.9 2.6 2.2 3.2V10c0 .4.3.8.8.8h1c.5 0 .8-.4.8-.8V8.7c1.3-.6 2.2-1.8 2.2-3.2A3.5 3.5 0 0 0 8 2zm1.5 10.5H6.5v0.8h3v-0.8zM9 13.8H7v0.8h2v-0.8z"
           />
         </svg>
       </span>
@@ -61,9 +126,10 @@ function ReactionStack() {
   );
 }
 
+/* ─── Action bar icons (pixel-matched to LinkedIn) ─── */
 function LikeIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/>
     </svg>
   );
@@ -71,7 +137,7 @@ function LikeIcon() {
 
 function CommentIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
     </svg>
   );
@@ -79,7 +145,7 @@ function CommentIcon() {
 
 function RepostIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
     </svg>
   );
@@ -87,24 +153,27 @@ function RepostIcon() {
 
 function SendIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
     </svg>
   );
 }
 
-function PostBody({ text, expanded, onExpand }) {
-  if (!text.trim()) {
+/* ─── Post body with fold ─── */
+function PostBody({ text, analysis, expanded, onExpand, viewMode }) {
+  if (!text || !text.trim()) {
     return (
-      <div className="li-post-text li-post-text-empty">
-        <p>Start writing and your post will appear here.</p>
-      </div>
+      <p className="li-post-text li-post-text-empty">
+        Start writing and your post will appear here.
+      </p>
     );
   }
 
-  const isFolded = text.length > DESKTOP_FOLD;
+  const isMobile = viewMode === 'mobile';
+  const folded = isMobile ? analysis.mobileFolded : analysis.desktopFolded;
+  const previewText = isMobile ? analysis.mobilePreview : analysis.desktopPreview;
 
-  if (!isFolded || expanded) {
+  if (!folded || expanded) {
     return (
       <div className="li-post-text">
         {renderFormattedText(text)}
@@ -112,117 +181,188 @@ function PostBody({ text, expanded, onExpand }) {
     );
   }
 
-  const preview = getFoldPreview(text);
-
   return (
     <div className="li-post-text">
-      {renderFormattedText(preview)}
-      <button type="button" className="li-more-btn" onClick={onExpand}>…more</button>
+      {renderFormattedText(previewText)}<button
+        type="button"
+        className="li-more-btn"
+        onClick={onExpand}
+      >…more</button>
     </div>
   );
 }
 
+/* ─── Main export ─── */
 export default function LinkedInPreview({ text }) {
   const [expanded, setExpanded] = useState(false);
-  const analysis = text ? getFoldAnalysis(text) : null;
+  const [viewMode, setViewMode] = useState('desktop'); // 'desktop' or 'mobile'
+  const analysis = getFoldAnalysis(text || '');
 
-  useEffect(() => {
-    setExpanded(false);
-  }, [text]);
+  useEffect(() => { setExpanded(false); }, [text, viewMode]);
 
   return (
-    <div className="li-feed-wrap">
-      <div className="li-post-card">
-        {/* Header */}
-        <div className="li-post-header">
-          <div className="li-avatar" aria-hidden="true">
-            <span>MB</span>
-          </div>
-          <div className="li-post-author">
-            <div className="li-name-row">
-              <span className="li-post-name">Muhammad Bin Aslam</span>
-            </div>
-            <p className="li-post-headline">Founder &amp; Operator · Building in public</p>
-            <div className="li-post-meta">
-              <span>1h</span>
-              <span className="li-meta-dot">•</span>
-              <GlobeIcon />
-            </div>
-          </div>
-          <div className="li-post-menu">
-            <button type="button" className="li-menu-btn" aria-label="More options">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-              </svg>
-            </button>
-            <button type="button" className="li-menu-btn" aria-label="Dismiss">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="li-post-body">
-          <PostBody
-            text={text}
-            expanded={expanded}
-            onExpand={() => setExpanded(true)}
-          />
-        </div>
-
-        {/* Social counts */}
-        <div className="li-social-counts">
-          <div className="li-reactions-row">
-            <ReactionStack />
-            <span className="li-reactions-text">Noor-ul-Ain Javaid and 10 others</span>
-          </div>
-          <div className="li-counts-row">
-            <span>40 comments</span>
-            <span className="li-meta-dot">•</span>
-            <span>3 reposts</span>
-          </div>
-        </div>
-
-        <div className="li-divider" />
-
-        {/* Action bar */}
-        <div className="li-action-bar">
-          <div className="li-action-viewer">
-            <div className="li-viewer-avatar" aria-hidden="true">
-              <span>Y</span>
-            </div>
-            <svg className="li-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4 6l4 4 4-4H4z"/>
-            </svg>
-          </div>
-          <button type="button" className="li-action-btn">
-            <LikeIcon />
-            <span>Like</span>
-          </button>
-          <button type="button" className="li-action-btn">
-            <CommentIcon />
-            <span>Comment</span>
-          </button>
-          <button type="button" className="li-action-btn">
-            <RepostIcon />
-            <span>Repost</span>
-          </button>
-          <button type="button" className="li-action-btn">
-            <SendIcon />
-            <span>Send</span>
-          </button>
-        </div>
+    <div className="li-preview-container">
+      {/* View Switcher */}
+      <div className="li-view-switcher">
+        <button
+          type="button"
+          className={`li-switch-btn ${viewMode === 'mobile' ? 'active' : ''}`}
+          onClick={() => setViewMode('mobile')}
+          aria-label="Switch to Mobile View"
+        >
+          <MobileIcon />
+          <span>Mobile</span>
+        </button>
+        <button
+          type="button"
+          className={`li-switch-btn ${viewMode === 'desktop' ? 'active' : ''}`}
+          onClick={() => setViewMode('desktop')}
+          aria-label="Switch to Desktop View"
+        >
+          <DesktopIcon />
+          <span>Desktop</span>
+        </button>
       </div>
 
-      {analysis && (
-        <div className="li-analysis-wrap">
+      {/* Preview Card */}
+      <div className={`li-feed-wrap ${viewMode}`}>
+        {/* ── Post card ── */}
+        <article className="li-post-card">
+
+          {/* Header */}
+          <div className="li-post-header">
+
+            {/* Avatar with fallback */}
+            <div className="li-avatar-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/muhammad_bin_aslam.jpg"
+                alt="Muhammad Bin Aslam"
+                className="li-avatar-img"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const sibling = e.target.nextSibling;
+                  if (sibling) sibling.style.display = 'flex';
+                }}
+              />
+              <div className="li-avatar" aria-hidden="true" style={{ display: 'none' }}>
+                MB
+              </div>
+            </div>
+
+            {/* Author info */}
+            <div className="li-post-author">
+              <div className="li-name-row">
+                <a
+                  href="https://www.linkedin.com/in/mbinaslam/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="li-post-name"
+                >
+                  Muhammad Bin Aslam
+                </a>
+                <VerificationBadge />
+                <div className="li-premium-badge-inline" title="LinkedIn Premium">
+                  <LinkedInLogo />
+                </div>
+                <span className="li-degree">• 1st</span>
+              </div>
+              <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen and GTM Strategy Consultant | B2B Hig...</p>
+              <div className="li-post-meta">
+                <span>6mo</span>
+                <span className="li-meta-dot" aria-hidden="true">•</span>
+                <span>Edited</span>
+                <span className="li-meta-dot" aria-hidden="true">•</span>
+                <GlobeIcon />
+              </div>
+            </div>
+
+            {/* Menu button */}
+            <div className="li-post-menu">
+              <button type="button" className="li-menu-btn" aria-label="More options">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14 12a2 2 0 11-2-2 2 2 0 012 2zM4 12a2 2 0 11-2-2 2 2 0 012 2zm16 0a2 2 0 11-2-2 2 2 0 012 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="li-post-body">
+            <PostBody
+              text={text}
+              analysis={analysis}
+              expanded={expanded}
+              onExpand={() => setExpanded(true)}
+              viewMode={viewMode}
+            />
+          </div>
+
+          {/* Social counts */}
+          <div className="li-social-counts">
+            <div className="li-reactions-row">
+              <ReactionStack />
+              <span className="li-reactions-text">Noor Ul Ain Javed and 10 others</span>
+            </div>
+            <div className="li-counts-row">
+              <span>40 comments</span>
+              <span className="li-meta-dot" aria-hidden="true">•</span>
+              <span>3 reposts</span>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="li-divider" role="separator" />
+
+          {/* Action bar */}
+          <div className="li-action-bar">
+            {/* Viewer avatar */}
+            <div className="li-action-viewer">
+              <div className="li-viewer-avatar-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/muhammad_bin_aslam.jpg"
+                  alt="Viewer Avatar"
+                  className="li-viewer-avatar-img"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    const sibling = e.target.nextSibling;
+                    if (sibling) sibling.style.display = 'flex';
+                  }}
+                />
+                <div className="li-viewer-avatar" aria-hidden="true" style={{ display: 'none' }}>
+                  Y
+                </div>
+              </div>
+              <svg className="li-chevron" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 9l6 6 6-6H6z"/>
+              </svg>
+            </div>
+
+            <button type="button" className="li-action-btn" aria-label="Like">
+              <LikeIcon /><span>Like</span>
+            </button>
+            <button type="button" className="li-action-btn" aria-label="Comment">
+              <CommentIcon /><span>Comment</span>
+            </button>
+            <button type="button" className="li-action-btn" aria-label="Repost">
+              <RepostIcon /><span>Repost</span>
+            </button>
+            <button type="button" className="li-action-btn" aria-label="Send">
+              <SendIcon /><span>Send</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      {/* Fold analysis badges */}
+      {text && text.trim() && (
+        <div className="li-analysis-wrap" style={{ width: '100%', maxWidth: viewMode === 'mobile' ? '375px' : '552px' }}>
           <div className={`li-analysis-badge ${analysis.desktopFolded ? 'li-analysis-warn' : 'li-analysis-ok'}`}>
-            {analysis.desktopFolded ? 'Desktop fold' : 'Desktop ok'}
+            {analysis.desktopFolded ? '⚠ Desktop fold' : '✓ Desktop ok'}
           </div>
           <div className={`li-analysis-badge ${analysis.mobileFolded ? 'li-analysis-warn' : 'li-analysis-ok'}`}>
-            {analysis.mobileFolded ? 'Mobile fold' : 'Mobile ok'}
+            {analysis.mobileFolded ? '⚠ Mobile fold' : '✓ Mobile ok'}
           </div>
         </div>
       )}
