@@ -281,7 +281,9 @@ export default function LinkedInPreview({ text }) {
             <div className="li-post-menu">
               <button type="button" className="li-menu-btn" aria-label="More options">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14 12a2 2 0 11-2-2 2 2 0 012 2zM4 12a2 2 0 11-2-2 2 2 0 012 2zm16 0a2 2 0 11-2-2 2 2 0 012 2z" />
+                  <circle cx="6" cy="12" r="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="18" cy="12" r="2" />
                 </svg>
               </button>
             </div>

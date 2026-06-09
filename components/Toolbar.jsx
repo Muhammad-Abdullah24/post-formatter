@@ -63,7 +63,7 @@ function getReadabilityScore(text) {
   return { label: 'Hard', color: 'var(--danger)' };
 }
 
-export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, onFormatOpen }) {
+export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, onFormatOpen, canUndo, canRedo }) {
   const [emojiOpen, setEmojiOpen]   = useState(false);
   const [activeCategory, setActiveCategory] = useState('Hands');
   const [hookOpen, setHookOpen]     = useState(false);
@@ -137,6 +137,11 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                 key={item.key}
                 title={item.title}
                 className="tb-btn"
+                disabled={
+                  (item.key === 'undo' && !canUndo) ||
+                  (item.key === 'redo' && !canRedo) ||
+                  (item.key === 'clear' && !text)
+                }
                 onClick={() => {
                   if (item.key === 'undo')  onUndo();
                   else if (item.key === 'redo')  onRedo();

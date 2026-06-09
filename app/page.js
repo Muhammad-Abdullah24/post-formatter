@@ -70,6 +70,49 @@ const FOOTER_COLS = [
 
 export default function Home() {
   const [text, setText] = useState('');
+  const [history, setHistory] = useState(['']);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const historyTimeoutRef = useRef(null);
+
+  const saveToHistory = (newVal) => {
+    setHistory(prev => {
+      const activeHistory = prev.slice(0, historyIndex + 1);
+      if (activeHistory[activeHistory.length - 1] === newVal) return prev;
+      setHistoryIndex(activeHistory.length);
+      return [...activeHistory, newVal];
+    });
+  };
+
+  const handleTextChange = (newVal) => {
+    setText(newVal);
+    if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current);
+    historyTimeoutRef.current = setTimeout(() => {
+      saveToHistory(newVal);
+    }, 500);
+  };
+
+  const handleInstantTextUpdate = (newVal) => {
+    setText(newVal);
+    if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current);
+    saveToHistory(newVal);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const nextIndex = historyIndex - 1;
+      setHistoryIndex(nextIndex);
+      setText(history[nextIndex]);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setText(history[nextIndex]);
+    }
+  };
+
   const [gwMode, setGwMode] = useState('topic');
   const [gwInput, setGwInput] = useState('');
   const [gwLoading, setGwLoading] = useState(false);
@@ -115,8 +158,22 @@ export default function Home() {
     if (!el) return;
     const start = el.selectionStart;
     const end = el.selectionEnd;
-    if (start === end) setText(fn(text));
-    else setText(text.slice(0, start) + fn(text.slice(start, end)) + text.slice(end));
+    let newText = '';
+    if (start === end) {
+      newText = fn(text);
+      handleInstantTextUpdate(newText);
+    } else {
+      const selectedText = text.slice(start, end);
+      const transformed = fn(selectedText);
+      newText = text.slice(0, start) + transformed + text.slice(end);
+      handleInstantTextUpdate(newText);
+      
+      // Restore focus and selection after state update
+      setTimeout(() => {
+        el.focus();
+        el.setSelectionRange(start, start + transformed.length);
+      }, 0);
+    }
   }
 
   function handleCopy() {
@@ -271,23 +328,31 @@ export default function Home() {
                 <Toolbar
                   text={text}
                   onApply={handleApply}
-                  onUndo={() => {}}
-                  onRedo={() => {}}
-                  onClear={() => setText('')}
+                  onUndo={handleUndo}
+                  onRedo={handleRedo}
+                  onClear={() => handleInstantTextUpdate('')}
                   onEmoji={(emoji) => {
                     const el = textareaRef.current;
                     if (!el) return;
                     const start = el.selectionStart;
-                    setText(text.slice(0, start) + emoji + text.slice(start));
+                    const end = el.selectionEnd;
+                    const newText = text.slice(0, start) + emoji + text.slice(end);
+                    handleInstantTextUpdate(newText);
+                    setTimeout(() => {
+                      el.focus();
+                      el.setSelectionRange(start + emoji.length, start + emoji.length);
+                    }, 0);
                   }}
-                  onFormat={(newText) => setText(newText)}
+                  onFormat={handleInstantTextUpdate}
                   onFormatOpen={() => setFormatOpen(true)}
+                  canUndo={historyIndex > 0}
+                  canRedo={historyIndex < history.length - 1}
                 />
                 <textarea
                   ref={textareaRef}
                   className="editor-area"
                   value={text}
-                  onChange={e => setText(e.target.value)}
+                  onChange={e => handleTextChange(e.target.value)}
                   placeholder={"Write your LinkedIn post here.\n\nSelect text and use the toolbar to apply formatting to specific words or lines."}
                 />
                 <div className="editor-footer">
@@ -307,7 +372,7 @@ export default function Home() {
                   </button>
                   <div style={{ flex: 1 }} />
                   <button
-                    onClick={() => setText('')}
+                    onClick={() => handleInstantTextUpdate('')}
                     disabled={!text}
                     className="btn btn-ghost btn-sm"
                   >
@@ -351,7 +416,7 @@ export default function Home() {
                   </button>
                   {gwOutput && (
                     <button
-                      onClick={() => { setText(gwOutput); setGwOutput(''); setGwInput(''); }}
+                      onClick={() => { handleInstantTextUpdate(gwOutput); setGwOutput(''); setGwInput(''); }}
                       className="btn btn-ghost btn-sm"
                     >
                       Use this post
@@ -404,7 +469,7 @@ export default function Home() {
         text={text}
         open={formatOpen}
         onClose={() => setFormatOpen(false)}
-        onApply={setText}
+        onApply={handleInstantTextUpdate}
       />
 
       {/* ── Footer ── */}
