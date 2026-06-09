@@ -165,32 +165,31 @@ body {
 }
 
 .nav-logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0;
   font-family: 'Montserrat', sans-serif;
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: #1BB8BD;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .nav-logo-i-wrap {
   position: relative;
   display: inline-block;
+  line-height: inherit;
 }
 
 .nav-logo-dot {
   position: absolute;
-  top: -5px;
+  top: 1px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
+  transform: translate(-50%, -100%);
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #DC0078;
-  box-shadow: 0 0 8px #DC0078, 0 0 16px rgba(220,0,120,0.5);
+  box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220,0,120,0.6);
 }
 
 .nav-divider {
@@ -569,6 +568,7 @@ body {
   top: calc(var(--nav-height) + 24px);
 }
 
+/* preview-scroll base — background set by LinkedIn-specific rule below */
 .preview-scroll {
   padding: 16px;
   display: flex;
@@ -576,6 +576,7 @@ body {
   gap: 16px;
   max-height: calc(100vh - var(--nav-height) - 80px);
   overflow-y: auto;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 /* ── Editor textarea ── */
@@ -605,17 +606,6 @@ body {
   background: rgba(27, 184, 189, 0.02);
 }
 
-.preview-scroll {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-height: calc(100vh - var(--nav-height) - 80px);
-  overflow-y: auto;
-  background: rgba(10, 13, 17, 0.4);
-  backdrop-filter: blur(4px);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
 
 /* ── LinkedIn preview (pixel replica) ── */
 
@@ -951,8 +941,7 @@ body {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 11px;
-  /* footer styles: see .footer-* classes near end of file */
-  font-family: 'Syne', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -973,10 +962,10 @@ body {
 /* LinkedIn feed background inside preview panel */
 .preview-scroll {
   background: #f4f2ee;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-[data-theme="dark"] .preview-scroll {
+[data-theme="dark"] .preview-scroll,
+.dark .preview-scroll {
   background: #1d2226;
 }
 
@@ -1797,31 +1786,31 @@ body,
 }
 
 .footer-logo-wrap {
-  display: flex;
-  align-items: center;
   font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: #1BB8BD;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .footer-logo-i-wrap {
   position: relative;
   display: inline-block;
+  line-height: inherit;
 }
 
 .footer-logo-dot {
   position: absolute;
-  top: -4px;
+  top: 1px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -100%);
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: #DC0078;
-  box-shadow: 0 0 6px #DC0078;
+  box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220,0,120,0.6);
 }
 
 .footer-tagline {

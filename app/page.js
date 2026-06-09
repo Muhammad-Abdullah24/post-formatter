@@ -179,15 +179,9 @@ export default function Home() {
         <div className="container nav-inner">
           <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
             <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="nav-brand">
-              {/* Hirenum logo with custom dotless ı and magenta dot */}
+              {/* Hirenum logo: H + dotless-ı-with-magenta-dot + renum */}
               <div className="nav-logo-wrap">
-                <span>H</span>
-                <span style={{ fontFamily: 'Montserrat, sans-serif' }}>&#x131;</span>
-                <span className="nav-logo-i-wrap">
-                  <span style={{ display: 'inline-block', width: '7px' }} />
-                  <span className="nav-logo-dot" />
-                </span>
-                <span>renum</span>
+                H<span className="nav-logo-i-wrap">&#x131;<span className="nav-logo-dot" /></span>renum
               </div>
               <span className="nav-divider" />
               <span className="nav-product">Post Formatter</span>
@@ -441,14 +435,8 @@ export default function Home() {
             <div className="footer-brand-col">
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                 <div className="footer-logo-wrap">
-                  <span>H</span>
-                  <span style={{ fontFamily: 'Montserrat, sans-serif' }}>&#x131;</span>
-                  <span className="footer-logo-i-wrap">
-                    <span style={{ display: 'inline-block', width: '6px' }} />
-                    <span className="footer-logo-dot" />
-                  </span>
-                  <span>renum</span>
-                </div>
+                    H<span className="footer-logo-i-wrap">&#x131;<span className="footer-logo-dot" /></span>renum
+                  </div>
               </a>
               <p className="footer-tagline">
                 LinkedIn personal branding for founders and executive leaders.
