@@ -1,40 +1,48 @@
 import Groq from 'groq-sdk';
+import { FORMAT_SYSTEM_PROMPT, buildFormatPrompt } from '@/lib/ai-prompts';
+import { analyzePostStructure, preFormatPost, sanitizeFormattedOutput } from '@/lib/format-utils';
 
 const client = new Groq();
 
 export async function POST(request) {
   try {
     const { text } = await request.json();
+    const trimmed = text?.trim();
 
-    const prompt = `You are a LinkedIn formatting expert. Reformat this post for maximum readability and engagement on LinkedIn.
+    if (!trimmed || trimmed.length < 30) {
+      return Response.json(
+        { error: 'Write at least a few sentences before using AI Format.' },
+        { status: 400 }
+      );
+    }
 
-POST:
-${text}
-
-Rules:
-- Break long paragraphs into 1-2 line chunks with blank lines between
-- Convert dense lists into bullet points using •
-- Bold key phrases using unicode bold (𝗹𝗶𝗸𝗲 𝘁𝗵𝗶𝘀) — only 2-3 most important phrases
-- Tighten sentences — cut filler words ruthlessly
-- Keep the author's voice and core message intact
-- Do NOT add new content or change facts
-- Return ONLY the reformatted post text, nothing else`;
+    const analysis = analyzePostStructure(trimmed);
+    const preFormatted = preFormatPost(trimmed);
+    const preAnalysis = analyzePostStructure(preFormatted);
 
     const stream = await client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2048,
+      temperature: 0.2,
+      messages: [
+        { role: 'system', content: FORMAT_SYSTEM_PROMPT },
+        { role: 'user', content: buildFormatPrompt(preFormatted, preAnalysis) },
+      ],
       stream: true,
     });
 
-    const encoder = new TextEncoder();
+    let fullResult = '';
+    for await (const chunk of stream) {
+      fullResult += chunk.choices[0]?.delta?.content || '';
+    }
 
+    const sanitized = sanitizeFormattedOutput(fullResult, trimmed);
+    const finalText = sanitized || preFormatted;
+
+    const encoder = new TextEncoder();
     const readable = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content || '';
-          if (text) controller.enqueue(encoder.encode(text));
-        }
+      start(controller) {
+        controller.enqueue(encoder.encode(finalText));
         controller.close();
       },
     });
@@ -42,11 +50,13 @@ Rules:
     return new Response(readable, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'Transfer-Encoding': 'chunked',
+        'X-Format-Issues': String(analysis.issues.length),
+        'X-Format-Fallback': sanitized ? '0' : '1',
       },
     });
 
   } catch (error) {
-    return Response.json({ error: 'Formatting failed.' }, { status: 500 });
+    console.error('Format failed:', error);
+    return Response.json({ error: 'AI Format failed. Check your Groq API key.' }, { status: 500 });
   }
 }

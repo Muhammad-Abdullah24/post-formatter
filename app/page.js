@@ -1,13 +1,71 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getFoldAnalysis } from '@/lib/foldline';
 import Toolbar from '@/components/Toolbar';
+import StylePreviews from '@/components/StylePreviews';
+import AiFormatPanel from '@/components/AiFormatPanel';
+import LinkedInPreview from '@/components/LinkedInPreview';
 
 const GW_MODES = [
-  { key: 'topic',      label: 'From Topic' },
-  { key: 'refine',     label: 'Refine Draft' },
-  { key: 'transcript', label: 'From Transcript' },
+  { key: 'topic',  label: 'From Topic' },
+  { key: 'refine', label: 'Refine Draft' },
+];
+
+const MARQUEE_ITEMS = [
+  'Fold-line preview',
+  'Unicode formatting',
+  'AI ghostwriter',
+  'Hook suggestions',
+  'Readability scoring',
+  'One-click copy',
+  'Free forever',
+];
+
+const NAV_LINKS = [
+  { href: '#editor',      label: 'Editor' },
+  { href: '#styles',      label: 'Styles' },
+  { href: '#ghostwriter', label: 'AI Writer' },
+  { href: '#preview',     label: 'Preview' },
+];
+
+const FOOTER_COLS = [
+  {
+    title: 'Services',
+    links: [
+      { label: 'Ghostwriting', href: 'https://hirenum.com' },
+      { label: 'Executive Branding', href: 'https://hirenum.com' },
+      { label: 'Profile Strategy', href: 'https://hirenum.com' },
+      { label: 'Content Systems', href: 'https://hirenum.com' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Blog', href: 'https://hirenum.com' },
+      { label: 'Post Formatter', href: '#' },
+      { label: 'Hook Generator', href: '#ghostwriter' },
+      { label: 'LinkedIn Playbook', href: 'https://hirenum.com' },
+    ],
+  },
+  {
+    title: 'Socials',
+    links: [
+      { label: 'LinkedIn', href: 'https://hirenum.com' },
+      { label: 'Twitter / X', href: 'https://hirenum.com' },
+      { label: 'Threads', href: 'https://hirenum.com' },
+      { label: 'Instagram', href: 'https://hirenum.com' },
+    ],
+  },
+  {
+    title: 'Info',
+    links: [
+      { label: 'About Us', href: 'https://hirenum.com' },
+      { label: 'Contact', href: 'mailto:info@hirenum.com' },
+      { label: 'Careers', href: 'https://hirenum.com' },
+      { label: 'Privacy Policy', href: 'https://hirenum.com' },
+    ],
+  },
 ];
 
 export default function Home() {
@@ -16,23 +74,49 @@ export default function Home() {
   const [gwInput, setGwInput] = useState('');
   const [gwLoading, setGwLoading] = useState(false);
   const [gwOutput, setGwOutput] = useState('');
-  const [transcript, setTranscript] = useState('');
-  const [ytUrl, setYtUrl] = useState('');
-  const [ytLoading, setYtLoading] = useState(false);
-  const [ytError, setYtError] = useState('');
+  const [gwError, setGwError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [formatOpen, setFormatOpen] = useState(false);
+  const [theme, setTheme] = useState('dark');
+  const [scrolled, setScrolled] = useState(false);
   const textareaRef = useRef(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') || 'dark';
+    setTheme(saved);
+    document.documentElement.setAttribute('data-theme', saved);
+    if (saved === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    function onScroll() { setScrolled(window.scrollY > 10); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', next);
+  }
 
   function handleApply(fn) {
     const el = textareaRef.current;
     if (!el) return;
     const start = el.selectionStart;
     const end = el.selectionEnd;
-    if (start === end) {
-      setText(fn(text));
-    } else {
-      setText(text.slice(0, start) + fn(text.slice(start, end)) + text.slice(end));
-    }
+    if (start === end) setText(fn(text));
+    else setText(text.slice(0, start) + fn(text.slice(start, end)) + text.slice(end));
   }
 
   function handleCopy() {
@@ -41,50 +125,13 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  async function handleTranscript() {
-    if (!ytUrl.trim()) return;
-    setYtLoading(true);
-    setYtError('');
-    try {
-      const res = await fetch('/api/transcript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: ytUrl.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setYtError(data.error || 'Failed.'); setYtLoading(false); return; }
-      setTranscript(data.transcript);
-      // Summarize via ghostwriter
-      setGwMode('transcript');
-      setGwInput('');
-      const sumRes = await fetch('/api/ghostwriter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'transcript', content: '', transcript: data.transcript }),
-      });
-      if (!sumRes.ok) { setText(data.transcript.slice(0, 500)); setYtLoading(false); return; }
-      const reader = sumRes.body.getReader();
-      const decoder = new TextDecoder();
-      let result = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        result += decoder.decode(value, { stream: true });
-        setText(result);
-      }
-      setYtLoading(false);
-    } catch {
-      setYtError('Request failed.');
-      setYtLoading(false);
-    }
-  }
-
   async function handleGenerate() {
     const content = gwInput.trim();
-    if (!content && gwMode !== 'transcript') return;
-    if (gwMode === 'transcript' && !transcript && !content) return;
+    if (!content && gwMode !== 'refine') return;
+    if (gwMode === 'refine' && !content && !text) return;
     setGwLoading(true);
     setGwOutput('');
+    setGwError('');
     try {
       const res = await fetch('/api/ghostwriter', {
         method: 'POST',
@@ -92,239 +139,356 @@ export default function Home() {
         body: JSON.stringify({
           mode: gwMode,
           content: gwMode === 'refine' ? (content || text) : content,
-          transcript: transcript || content,
         }),
       });
-      if (!res.ok) { setGwLoading(false); return; }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setGwError(data.error || 'Generation failed. Please try again.');
+        setGwLoading(false);
+        return;
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let result = '';
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        result += chunk;
+        result += decoder.decode(value, { stream: true });
         setGwOutput(result);
       }
       setGwLoading(false);
     } catch {
+      setGwError('Request failed. Check your connection and try again.');
       setGwLoading(false);
     }
   }
 
-  function useGenerated() {
-    if (gwOutput) { setText(gwOutput); setGwOutput(''); setGwInput(''); }
-  }
-
   const analysis = text ? getFoldAnalysis(text) : null;
-
-  const renderPreviewBody = () => {
-    if (!text) return (
-      <div style={{ fontSize: 13, lineHeight: 1.6, color: '#666' }}>
-        <p style={{ marginBottom: 8 }}>Start writing and your post will appear here..</p>
-        <p style={{ marginBottom: 8 }}>You can add <span style={{ color: '#0a66c2' }}>#hashtags</span> and emojis 🤩 <span style={{ float: 'right', color: '#0a66c2', cursor: 'pointer' }}>...more</span></p>
-        <p style={{ color: '#aaa' }}>This line will appear below the more...</p>
-      </div>
-    );
-    if (!analysis?.desktopFolded) return (
-      <p style={{ fontSize: 13, lineHeight: 1.6, color: '#1a1a1a', whiteSpace: 'pre-wrap', margin: 0 }}>{text}</p>
-    );
-    return (
-      <div style={{ fontSize: 13, lineHeight: 1.6, color: '#1a1a1a' }}>
-        <span style={{ whiteSpace: 'pre-wrap' }}>{analysis.desktopPreview}</span>
-        <span style={{ color: '#0a66c2', cursor: 'pointer' }}> ...more</span>
-        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed rgba(10,102,194,0.25)' }}>
-          <span style={{ fontSize: 10, color: '#0a66c2', fontWeight: 700, display: 'block', marginBottom: 4, letterSpacing: '0.08em' }}>FOLD LINE</span>
-          <p style={{ whiteSpace: 'pre-wrap', color: '#999', margin: 0 }}>{analysis.desktopRemainder}</p>
-        </div>
-      </div>
-    );
-  };
+  const marqueeContent = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--paper)', display: 'flex', flexDirection: 'column' }}>
+    <div className="page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)', position: 'relative', overflowX: 'hidden' }}>
 
-      <nav className="animate-fade-up" style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '0 28px', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span className="font-display" style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Hirenum</span>
-          <span style={{ width: 1, height: 16, background: 'var(--border)', display: 'inline-block' }} />
-          <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Post Formatter</span>
-          <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '2px 8px', borderRadius: 100, fontFamily: 'Syne, sans-serif', letterSpacing: '0.06em' }}>FREE</span>
+      {/* ── Ambient background glow orbs ── */}
+      <div className="glow-orb" style={{ top: '-200px', left: '-200px' }} aria-hidden="true" />
+      <div className="glow-orb" style={{ bottom: '10%', left: '-100px', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(220,0,120,0.1) 0%, rgba(27,184,189,0.05) 50%, transparent 70%)' }} aria-hidden="true" />
+      <div className="glow-orb" style={{ top: '30%', right: '-150px', width: '500px', height: '500px' }} aria-hidden="true" />
+
+      {/* ── Nav ── */}
+      <nav className="nav anim-fade-up" style={{ boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.2)' : 'none' }}>
+        <div className="container nav-inner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+            <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="nav-brand">
+              {/* Hirenum logo with custom dotless ı and magenta dot */}
+              <div className="nav-logo-wrap">
+                <span>H</span>
+                <span style={{ fontFamily: 'Montserrat, sans-serif' }}>&#x131;</span>
+                <span className="nav-logo-i-wrap">
+                  <span style={{ display: 'inline-block', width: '7px' }} />
+                  <span className="nav-logo-dot" />
+                </span>
+                <span>renum</span>
+              </div>
+              <span className="nav-divider" />
+              <span className="nav-product">Post Formatter</span>
+            </a>
+            <div className="nav-links">
+              {NAV_LINKS.map(link => (
+                <a key={link.href} href={link.href} className="nav-link">{link.label}</a>
+              ))}
+            </div>
+          </div>
+          <div className="nav-actions">
+            {analysis && (
+              <div style={{ display: 'flex', gap: 6 }}>
+                <span className={`badge ${analysis.desktopFolded ? 'badge-warn' : 'badge-ok'}`}>
+                  {analysis.desktopFolded ? '⚠ Desktop' : '✓ Desktop'}
+                </span>
+                <span className={`badge ${analysis.mobileFolded ? 'badge-warn' : 'badge-ok'}`}>
+                  {analysis.mobileFolded ? '⚠ Mobile' : '✓ Mobile'}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={toggleTheme}
+              className="btn btn-ghost btn-icon"
+              title="Toggle theme"
+              aria-label="Toggle theme"
+              style={{ borderRadius: '10px', width: '36px', height: '36px' }}
+            >
+              {theme === 'light' ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
-        <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', textDecoration: 'none', fontFamily: 'Syne, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Hirenum.com
-        </a>
       </nav>
 
-      <div className="animate-fade-up-1" style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '16px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h1 className="font-display" style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em', margin: 0, lineHeight: 1.1 }}>LinkedIn Post Formatter</h1>
-          <p style={{ fontSize: 12, color: 'var(--muted)', margin: '3px 0 0', fontWeight: 400 }}>Write. Format. Ghost-write. All in one workspace.</p>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {analysis && (
-            <>
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 8, background: analysis.desktopFolded ? '#fff8ed' : '#edf7f2', color: analysis.desktopFolded ? '#b45309' : 'var(--success)', border: `1px solid ${analysis.desktopFolded ? '#fde68a' : '#a7f3d0'}`, fontFamily: 'Syne, sans-serif' }}>
-                {analysis.desktopFolded ? 'Desktop fold' : 'Desktop OK'}
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 8, background: analysis.mobileFolded ? '#fff8ed' : '#edf7f2', color: analysis.mobileFolded ? '#b45309' : 'var(--success)', border: `1px solid ${analysis.mobileFolded ? '#fde68a' : '#a7f3d0'}`, fontFamily: 'Syne, sans-serif' }}>
-                {analysis.mobileFolded ? 'Mobile fold' : 'Mobile OK'}
-              </span>
-            </>
-          )}
+      {/* ── Marquee ── */}
+      <div className="marquee-wrap anim-fade-up-1" aria-hidden="true">
+        <div className="marquee-track">
+          {marqueeContent.map((item, i) => (
+            <span key={i} className="marquee-item">
+              {item}
+              <span className="marquee-dot" />
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="animate-fade-up-2" style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, padding: '16px 20px' }}>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-
-          {/* Transcript puller */}
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-label">YouTube Transcript Puller</span>
-              {transcript && <span style={{ fontSize: 10, color: 'var(--success)', fontWeight: 700, fontFamily: 'Syne, sans-serif', letterSpacing: '0.06em' }}>LOADED</span>}
-            </div>
-            <div style={{ padding: '10px 14px', display: 'flex', gap: 8 }}>
-              <input
-                type="text"
-                value={ytUrl}
-                onChange={e => setYtUrl(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleTranscript()}
-                placeholder="Paste YouTube URL — AI will summarize the transcript into your editor"
-                style={{ flex: 1, background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 8, padding: '7px 12px', fontSize: 12, color: 'var(--ink)', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
-              />
-              <button onClick={handleTranscript} disabled={ytLoading || !ytUrl.trim()} className="btn-accent">
-                {ytLoading ? 'Working...' : 'Pull'}
-              </button>
-            </div>
-            {ytError && <div style={{ padding: '0 14px 10px', fontSize: 11, color: '#dc2626' }}>{ytError}</div>}
+      {/* ── Hero ── */}
+      <header className="hero anim-fade-up-2">
+        <div className="container">
+          <div className="hero-eyebrow">
+            <span className="hero-eyebrow-dot" />
+            Free tool by Hirenum
           </div>
-
-          {/* Editor */}
-          <div className="panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 300 }}>
-            <Toolbar
-  text={text}
-  onApply={handleApply}
-  onUndo={() => {}}
-  onRedo={() => {}}
-  onClear={() => setText('')}
-  onEmoji={(emoji) => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const start = el.selectionStart;
-    setText(text.slice(0, start) + emoji + text.slice(start));
-  }}
-  onFormat={(newText) => setText(newText)}
-/>
-            <textarea
-              ref={textareaRef}
-              value={text}
-              onChange={e => setText(e.target.value)}
-              placeholder="Write your LinkedIn post here. Select text and click toolbar to format specific words..."
-              style={{ flex: 1, resize: 'none', border: 'none', outline: 'none', padding: '16px', fontSize: 14, lineHeight: 1.7, color: 'var(--ink)', background: 'white', fontFamily: 'DM Sans, sans-serif', minHeight: 260 }}
-            />
-            <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)', display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button onClick={handleCopy} disabled={!text} className="btn-ghost">{copied ? 'Copied!' : 'Copy text'}</button>
-              <div style={{ flex: 1 }} />
-              {analysis && (
-                <span style={{ fontSize: 11, fontWeight: 600, fontFamily: 'Syne, sans-serif', letterSpacing: '0.04em', color: analysis.hookStrength.score === 'strong' ? 'var(--success)' : analysis.hookStrength.score === 'bad' ? '#dc2626' : 'var(--muted)' }}>
-                  {analysis.hookStrength.message}
-                </span>
-              )}
-            </div>
+          <h1 className="hero-title">
+            LinkedIn Post{' '}
+            <span className="hero-title-accent">Formatter</span>
+          </h1>
+          <p className="hero-sub">
+            Write, format, and preview your posts — before you publish.
+            See exactly where your content folds, score your hook, and publish with confidence.
+          </p>
+          <div className="hero-meta">
+            <span className="badge badge-neutral">Free</span>
+            <span className="badge badge-neutral">No login needed</span>
+            {analysis && (
+              <span
+                className="badge"
+                style={{
+                  background: analysis.hookStrength.score === 'strong' ? 'rgba(16,185,129,0.1)'
+                    : analysis.hookStrength.score === 'bad' ? 'rgba(239,68,68,0.1)'
+                    : 'rgba(245,158,11,0.1)',
+                  color: analysis.hookStrength.score === 'strong' ? 'var(--success)'
+                    : analysis.hookStrength.score === 'bad' ? 'var(--danger)'
+                    : 'var(--warning)',
+                  border: `1px solid ${analysis.hookStrength.score === 'strong' ? 'rgba(16,185,129,0.25)' : analysis.hookStrength.score === 'bad' ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.25)'}`,
+                }}
+              >
+                {analysis.hookStrength.message}
+              </span>
+            )}
           </div>
+        </div>
+      </header>
 
-          {/* Ghostwriter */}
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-label">AI Ghostwriter</span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {GW_MODES.map(m => (
-                  <button key={m.key} onClick={() => { setGwMode(m.key); setGwInput(''); setGwOutput(''); }} className={`mode-pill${gwMode === m.key ? ' active' : ''}`}>
-                    {m.label}
-                  </button>
-                ))}
+      {/* ── Workspace ── */}
+      <main className="workspace anim-fade-up-3" style={{ flex: 1, paddingBottom: 'var(--section-pad)', position: 'relative', zIndex: 1 }}>
+        <div className="container workspace-grid">
+
+          {/* Left column */}
+          <div className="editor-stack">
+
+            {/* Editor */}
+            <section id="editor" className="section-card hover-lift">
+              <div className="section-card-header">
+                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Post Editor</span>
               </div>
-            </div>
-            <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {gwMode === 'transcript' && transcript ? (
-                <div style={{ background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontSize: 11, color: 'var(--muted)', maxHeight: 60, overflow: 'hidden' }}>
-                  <span style={{ color: 'var(--success)', fontWeight: 700, fontFamily: 'Syne, sans-serif', fontSize: 10, letterSpacing: '0.06em' }}>TRANSCRIPT READY — </span>
-                  {transcript.slice(0, 120)}...
-                </div>
-              ) : (
+              <div className="section-card-body-flush" style={{ display: 'flex', flexDirection: 'column' }}>
+                <Toolbar
+                  text={text}
+                  onApply={handleApply}
+                  onUndo={() => {}}
+                  onRedo={() => {}}
+                  onClear={() => setText('')}
+                  onEmoji={(emoji) => {
+                    const el = textareaRef.current;
+                    if (!el) return;
+                    const start = el.selectionStart;
+                    setText(text.slice(0, start) + emoji + text.slice(start));
+                  }}
+                  onFormat={(newText) => setText(newText)}
+                  onFormatOpen={() => setFormatOpen(true)}
+                />
                 <textarea
+                  ref={textareaRef}
+                  className="editor-area"
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  placeholder={"Write your LinkedIn post here.\n\nSelect text and use the toolbar to apply formatting to specific words or lines."}
+                />
+                <div className="editor-footer">
+                  <button onClick={handleCopy} disabled={!text} className="btn btn-primary btn-sm">
+                    {copied ? '✓ Copied!' : 'Copy post'}
+                  </button>
+                  <button
+                    onClick={() => setFormatOpen(true)}
+                    disabled={!text.trim() || text.trim().length < 30}
+                    className="btn btn-format btn-sm"
+                    title="Restructure spacing, rhythm, and emphasis for LinkedIn"
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    AI Format
+                  </button>
+                  <div style={{ flex: 1 }} />
+                  <button
+                    onClick={() => setText('')}
+                    disabled={!text}
+                    className="btn btn-ghost btn-sm"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Ghostwriter */}
+            <section id="ghostwriter" className="section-card hover-lift">
+              <div className="section-card-header">
+                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ AI Ghostwriter</span>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {GW_MODES.map(m => (
+                    <button
+                      key={m.key}
+                      onClick={() => { setGwMode(m.key); setGwInput(''); setGwOutput(''); setGwError(''); }}
+                      className={`mode-pill${gwMode === m.key ? ' active' : ''}`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="section-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <textarea
+                  className="textarea-inline"
                   value={gwInput}
                   onChange={e => setGwInput(e.target.value)}
                   placeholder={
-                    gwMode === 'topic' ? 'Enter a topic or idea...' :
-                    gwMode === 'refine' ? 'Paste a draft to refine, or leave empty to refine the current post...' :
-                    'Paste a transcript here, or pull one from YouTube above...'
+                    gwMode === 'topic'
+                      ? 'Enter a topic or idea to write about...'
+                      : 'Paste a draft to refine, or leave empty to refine the current post...'
                   }
-                  rows={3}
-                  style={{ resize: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: 'var(--ink)', background: 'var(--paper)', outline: 'none', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.6 }}
+                  rows={4}
                 />
-              )}
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <button onClick={handleGenerate} disabled={gwLoading} className="btn-accent">
-                  {gwLoading ? 'Writing...' : 'Generate Post'}
-                </button>
-                {gwOutput && <button onClick={useGenerated} className="btn-ghost">Use this post</button>}
-              </div>
-              {gwOutput && (
-                <div style={{ background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: 'var(--ink)', lineHeight: 1.7, maxHeight: 140, overflowY: 'auto', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'pre-wrap' }}>
-                  {gwOutput}
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button onClick={handleGenerate} disabled={gwLoading} className={`btn btn-primary btn-md${gwLoading ? ' animate-pulse-glow' : ''}`}>
+                    {gwLoading ? <><span className="pulse-dot">●</span> Writing…</> : 'Generate post'}
+                  </button>
+                  {gwOutput && (
+                    <button
+                      onClick={() => { setText(gwOutput); setGwOutput(''); setGwInput(''); }}
+                      className="btn btn-ghost btn-sm"
+                    >
+                      Use this post
+                    </button>
+                  )}
                 </div>
-              )}
+                {gwError && (
+                  <p style={{ fontSize: 13, color: 'var(--danger)', lineHeight: 1.5 }}>{gwError}</p>
+                )}
+                {gwOutput && (
+                  <div className="output-box">{gwOutput}</div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Right column — Preview */}
+          <aside id="preview" className="preview-panel">
+            <div className="section-card" style={{ border: '1px solid rgba(27,184,189,0.15)' }}>
+              <div className="section-card-header">
+                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Live Preview</span>
+                <span className="card-label" style={{ color: '#0a66c2', letterSpacing: '0.1em' }}>LinkedIn</span>
+              </div>
+              <div className="preview-scroll">
+                <LinkedInPreview text={text} />
+                {analysis && (
+                  <div className="analysis-card">
+                    <p className="card-label" style={{ marginBottom: 8, color: '#1BB8BD' }}>Hook analysis</p>
+                    <p style={{
+                      color: analysis.hookStrength.score === 'strong' ? 'var(--success)'
+                        : analysis.hookStrength.score === 'bad' ? 'var(--danger)'
+                        : 'var(--warning)',
+                      fontSize: 13,
+                      fontFamily: 'Roboto, sans-serif',
+                      lineHeight: 1.6,
+                    }}>
+                      {analysis.hookStrength.message}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+          </aside>
+        </div>
+
+        <StylePreviews text={text} />
+      </main>
+
+      <AiFormatPanel
+        text={text}
+        open={formatOpen}
+        onClose={() => setFormatOpen(false)}
+        onApply={setText}
+      />
+
+      {/* ── Footer ── */}
+      <footer className="site-footer">
+        <div className="footer-top-border" />
+        <div className="container footer-inner">
+          <div className="footer-grid">
+            {/* Brand column */}
+            <div className="footer-brand-col">
+              <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <div className="footer-logo-wrap">
+                  <span>H</span>
+                  <span style={{ fontFamily: 'Montserrat, sans-serif' }}>&#x131;</span>
+                  <span className="footer-logo-i-wrap">
+                    <span style={{ display: 'inline-block', width: '6px' }} />
+                    <span className="footer-logo-dot" />
+                  </span>
+                  <span>renum</span>
+                </div>
+              </a>
+              <p className="footer-tagline">
+                LinkedIn personal branding for founders and executive leaders.
+              </p>
+            </div>
+
+            {/* 4 link columns */}
+            {FOOTER_COLS.map(col => (
+              <div key={col.title}>
+                <p className="footer-col-title">{col.title}</p>
+                <div className="footer-col-links">
+                  {col.links.map(link => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="footer-col-link"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer bottom bar */}
+          <div className="footer-bottom">
+            <p className="footer-text">
+              A free tool by{' '}
+              <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="footer-link">Hirenum</a>
+              {' '}— LinkedIn personal branding for founders and leaders.
+            </p>
+            <a href="mailto:info@hirenum.com" className="footer-email">info@hirenum.com</a>
           </div>
         </div>
 
-        {/* Preview */}
-        <div style={{ position: 'sticky', top: 16, height: 'fit-content', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-label">Post Preview</span>
-              <span style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'Syne, sans-serif' }}>LinkedIn</span>
-            </div>
-            <div style={{ padding: 16 }}>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #0a66c2, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 15, flexShrink: 0 }}>H</div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a', margin: 0 }}>Your Name</p>
-                  <p style={{ fontSize: 11, color: '#666', margin: '1px 0' }}>Your Headline • 1st</p>
-                  <p style={{ fontSize: 10, color: '#999', margin: 0 }}>12h • 🌐</p>
-                </div>
-              </div>
-              {renderPreviewBody()}
-            </div>
-            <div style={{ padding: '8px 16px', borderTop: '1px solid #f0f0f0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontSize: 12 }}>👍❤️ <span style={{ fontSize: 11, color: '#666' }}>57</span></span>
-                <span style={{ fontSize: 11, color: '#999' }}>24 comments · 6 reposts</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-around', paddingTop: 4, borderTop: '1px solid #f0f0f0' }}>
-                {['👍 Like', '💬 Comment', '🔁 Repost', '📤 Send'].map(a => (
-                  <button key={a} style={{ fontSize: 11, fontWeight: 600, color: '#666', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4 }}>{a}</button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {analysis && (
-            <div style={{ padding: '10px 14px', background: 'white', border: '1px solid var(--border)', borderRadius: 12, fontSize: 11, color: 'var(--muted)', lineHeight: 1.6 }}>
-              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 10, color: 'var(--ink)', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>HOOK ANALYSIS</span>
-              {analysis.hookStrength.message}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '14px 28px', textAlign: 'center', background: 'white' }}>
-        <p style={{ fontSize: 11, color: 'var(--muted)', margin: 0 }}>
-          A free tool by <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'none' }}>Hirenum</a> — LinkedIn Personal Branding for Founders and Leaders
-        </p>
+        {/* Massive HIRENUM backplate text */}
+        <div className="footer-backplate" aria-hidden="true">HIRENUM</div>
       </footer>
     </div>
   );

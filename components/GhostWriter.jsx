@@ -3,12 +3,11 @@
 import { useState } from 'react';
 
 const MODES = [
-  { key: 'topic',      label: 'From Topic',      placeholder: 'e.g. Why most founders fail at LinkedIn in their first 90 days' },
-  { key: 'refine',     label: 'Refine Draft',     placeholder: 'Paste your draft here and AI will rewrite it...' },
-  { key: 'transcript', label: 'From Transcript',  placeholder: 'Paste a YouTube transcript here or use the Transcript Puller below...' },
+  { key: 'topic',  label: 'From Topic',  placeholder: 'e.g. Why most founders fail at LinkedIn in their first 90 days' },
+  { key: 'refine', label: 'Refine Draft', placeholder: 'Paste your draft here and AI will rewrite it...' },
 ];
 
-export default function Ghostwriter({ onGenerated, transcript }) {
+export default function Ghostwriter({ onGenerated }) {
   const [mode, setMode] = useState('topic');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,8 +18,7 @@ export default function Ghostwriter({ onGenerated, transcript }) {
 
   async function handleGenerate() {
     const content = input.trim();
-    if (!content && mode !== 'transcript') return;
-    if (mode === 'transcript' && !transcript && !content) return;
+    if (!content) return;
 
     setLoading(true);
     setOutput('');
@@ -30,11 +28,7 @@ export default function Ghostwriter({ onGenerated, transcript }) {
       const res = await fetch('/api/ghostwriter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode,
-          content,
-          transcript: transcript || content,
-        }),
+        body: JSON.stringify({ mode, content }),
       });
 
       if (!res.ok) {
@@ -93,20 +87,13 @@ export default function Ghostwriter({ onGenerated, transcript }) {
       </div>
 
       {/* Input */}
-      {mode === 'transcript' && transcript ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-zinc-400 leading-relaxed max-h-32 overflow-y-auto">
-          <span className="text-indigo-400 font-semibold block mb-1">Transcript loaded ✓</span>
-          {transcript.slice(0, 300)}...
-        </div>
-      ) : (
-        <textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder={activeMode.placeholder}
-          rows={4}
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-indigo-500 transition-colors"
-        />
-      )}
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        placeholder={activeMode.placeholder}
+        rows={4}
+        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-indigo-500 transition-colors"
+      />
 
       {/* Generate button */}
       <button

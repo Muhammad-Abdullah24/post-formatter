@@ -1,37 +1,59 @@
 import Groq from 'groq-sdk';
+import { LINKEDIN_SYSTEM_PROMPT, buildHooksPrompt, parseHooksJson } from '@/lib/ai-prompts';
 
 const client = new Groq();
 
 export async function POST(request) {
   try {
-    const { firstLine } = await request.json();
+    const { text } = await request.json();
+    const trimmed = text?.trim();
 
-    const prompt = `You are a LinkedIn hook expert. Given this opening line, generate exactly 3 alternative hooks that are punchier and more engaging.
+    if (!trimmed || trimmed.length < 20) {
+      return Response.json(
+        { error: 'Write at least a few sentences in the editor so hooks can match your post.' },
+        { status: 400 }
+      );
+    }
 
-Current hook: "${firstLine}"
+    const lines = trimmed.split('\n');
+    const currentHook = lines[0].trim();
 
-Rules:
-- Each hook must be under 15 words
-- Use one of these patterns: bold statement, contrarian take, specific number, provocative question
-- No generic advice
-- Return ONLY a JSON array of 3 strings, no other text, no markdown, no explanation
-
-Example output: ["Hook one here", "Hook two here", "Hook three here"]`;
+    if (!currentHook) {
+      return Response.json(
+        { error: 'Your post needs an opening line to generate hook alternatives.' },
+        { status: 400 }
+      );
+    }
 
     const response = await client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
-      max_tokens: 256,
-      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 800,
+      temperature: 0.75,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: LINKEDIN_SYSTEM_PROMPT },
+        { role: 'user', content: buildHooksPrompt(trimmed, currentHook) },
+      ],
       stream: false,
     });
 
-    const raw = response.choices[0]?.message?.content || '[]';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const hooks = JSON.parse(clean);
+    const raw = response.choices[0]?.message?.content || '';
+    const hooks = parseHooksJson(raw);
 
-    return Response.json({ hooks });
+    if (hooks.length === 0) {
+      return Response.json(
+        { error: 'Could not parse hook suggestions. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ hooks, currentHook });
 
   } catch (error) {
-    return Response.json({ error: 'Failed to generate hooks.' }, { status: 500 });
+    console.error('Hooks generation failed:', error);
+    return Response.json(
+      { error: 'Failed to generate hooks. Check your Groq API key and try again.' },
+      { status: 500 }
+    );
   }
 }
