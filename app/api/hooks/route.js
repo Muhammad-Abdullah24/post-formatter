@@ -1,7 +1,9 @@
-import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import { LINKEDIN_SYSTEM_PROMPT, buildHooksPrompt, parseHooksJson } from '@/lib/ai-prompts';
 
-const client = new Groq();
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(request) {
   try {
@@ -26,7 +28,7 @@ export async function POST(request) {
     }
 
     const response = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-4o-mini',
       max_tokens: 800,
       temperature: 0.75,
       response_format: { type: 'json_object' },
@@ -52,8 +54,9 @@ export async function POST(request) {
   } catch (error) {
     console.error('Hooks generation failed:', error);
     return Response.json(
-      { error: 'Failed to generate hooks. Check your Groq API key and try again.' },
+      { error: 'Failed to generate hooks. Check your OpenAI API key and try again.' },
       { status: 500 }
     );
   }
 }
+

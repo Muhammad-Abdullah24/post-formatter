@@ -1,7 +1,9 @@
-import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import { LINKEDIN_SYSTEM_PROMPT, buildTopicPrompt, buildRefinePrompt } from '@/lib/ai-prompts';
 
-const client = new Groq();
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(request) {
   try {
@@ -40,7 +42,7 @@ export async function POST(request) {
     }
 
     const stream = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-4o-mini',
       max_tokens: 1536,
       temperature,
       messages: [
@@ -72,8 +74,9 @@ export async function POST(request) {
   } catch (error) {
     console.error('Ghostwriter failed:', error);
     return Response.json(
-      { error: 'Ghostwriter failed. Check your Groq API key.' },
+      { error: 'Ghostwriter failed. Check your OpenAI API key.' },
       { status: 500 }
     );
   }
 }
+

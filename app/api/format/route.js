@@ -1,8 +1,10 @@
-import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import { FORMAT_SYSTEM_PROMPT, buildFormatPrompt } from '@/lib/ai-prompts';
 import { analyzePostStructure, preFormatPost, sanitizeFormattedOutput } from '@/lib/format-utils';
 
-const client = new Groq();
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(request) {
   try {
@@ -21,9 +23,9 @@ export async function POST(request) {
     const preAnalysis = analyzePostStructure(preFormatted);
 
     const stream = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-4o-mini',
       max_tokens: 2048,
-      temperature: 0.2,
+      temperature: 0.15,
       messages: [
         { role: 'system', content: FORMAT_SYSTEM_PROMPT },
         { role: 'user', content: buildFormatPrompt(preFormatted, preAnalysis) },
@@ -57,6 +59,7 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Format failed:', error);
-    return Response.json({ error: 'AI Format failed. Check your Groq API key.' }, { status: 500 });
+    return Response.json({ error: 'AI Format failed. Check your OpenAI API key.' }, { status: 500 });
   }
 }
+

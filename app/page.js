@@ -15,7 +15,7 @@ const GW_MODES = [
 const MARQUEE_ITEMS = [
   'Fold-line preview',
   'Unicode formatting',
-  'AI ghostwriter',
+  'Hirenum AI Writer',
   'Hook suggestions',
   'Readability scoring',
   'One-click copy',
@@ -158,10 +158,17 @@ export default function Home() {
     if (!el) return;
     const start = el.selectionStart;
     const end = el.selectionEnd;
+    const scrollTop = el.scrollTop; // Save scroll position
     let newText = '';
     if (start === end) {
       newText = fn(text);
       handleInstantTextUpdate(newText);
+      setTimeout(() => {
+        el.focus();
+        // Since unicode bold conversion can increase text length, we keep cursor position
+        el.setSelectionRange(start, start);
+        el.scrollTop = scrollTop; // Restore scroll position
+      }, 0);
     } else {
       const selectedText = text.slice(start, end);
       const transformed = fn(selectedText);
@@ -172,6 +179,7 @@ export default function Home() {
       setTimeout(() => {
         el.focus();
         el.setSelectionRange(start, start + transformed.length);
+        el.scrollTop = scrollTop; // Restore scroll position
       }, 0);
     }
   }
@@ -238,7 +246,7 @@ export default function Home() {
             <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="nav-brand">
               {/* Hirenum logo: H + dotless-ı-with-magenta-dot + renum */}
               <div className="nav-logo-wrap">
-                H<span className="nav-logo-i-wrap">&#x131;<span className="nav-logo-dot" /></span>renum
+                H<span className="nav-logo-i-wrap"><span className="nav-logo-i-stem" /><span className="nav-logo-dot" /></span>renum
               </div>
               <span className="nav-divider" />
               <span className="nav-product">Post Formatter</span>
@@ -385,7 +393,7 @@ export default function Home() {
             {/* Ghostwriter */}
             <section id="ghostwriter" className="section-card hover-lift">
               <div className="section-card-header">
-                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ AI Ghostwriter</span>
+                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Hirenum AI Writer</span>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {GW_MODES.map(m => (
                     <button
@@ -481,7 +489,7 @@ export default function Home() {
             <div className="footer-brand-col">
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                 <div className="footer-logo-wrap">
-                    H<span className="footer-logo-i-wrap">&#x131;<span className="footer-logo-dot" /></span>renum
+                    H<span className="footer-logo-i-wrap"><span className="footer-logo-i-stem" /><span className="footer-logo-dot" /></span>renum
                   </div>
               </a>
               <p className="footer-tagline">

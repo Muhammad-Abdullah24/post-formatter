@@ -267,7 +267,7 @@ export default function LinkedInPreview({ text }) {
                 </div>
                 <span className="li-degree">• 1st</span>
               </div>
-              <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen and GTM Strategy Consultant | B2B Hig...</p>
+              <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen...</p>
               <div className="li-post-meta">
                 <span>6mo</span>
                 <span className="li-meta-dot" aria-hidden="true">•</span>

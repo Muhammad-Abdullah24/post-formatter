@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import {
-  toBold, toItalic, toUnderline, toStrikethrough,
+  toggleBold, toggleItalic, toggleUnderline, toggleStrikethrough,
   toBulletPoints, toNumberedList, toChecklist,
-  toBoldSans, toScript, toDoublestruck
+  toggleBoldSans, toggleScript, toggleDoublestruck
 } from '@/lib/unicode';
 
 const EMOJIS = {
@@ -28,10 +28,10 @@ const tools = [
   {
     group: 'format',
     items: [
-      { key: 'bold',      title: 'Bold',          fn: toBold,          icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>) },
-      { key: 'italic',    title: 'Italic',        fn: toItalic,        icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>) },
-      { key: 'underline', title: 'Underline',     fn: toUnderline,     icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>) },
-      { key: 'strike',    title: 'Strikethrough', fn: toStrikethrough, icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6C16 6 14.5 4 12 4c-2.5 0-4 1.5-4 3 0 1.5 1 2.5 4 3"/><path d="M8 18c0 0 1.5 2 4 2 2.5 0 4-1.5 4-3 0-1.5-1-2.5-4-3"/></svg>) },
+      { key: 'bold',      title: 'Bold',          fn: toggleBold,          icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>) },
+      { key: 'italic',    title: 'Italic',        fn: toggleItalic,        icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>) },
+      { key: 'underline', title: 'Underline',     fn: toggleUnderline,     icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>) },
+      { key: 'strike',    title: 'Strikethrough', fn: toggleStrikethrough, icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6C16 6 14.5 4 12 4c-2.5 0-4 1.5-4 3 0 1.5 1 2.5 4 3"/><path d="M8 18c0 0 1.5 2 4 2 2.5 0 4-1.5 4-3 0-1.5-1-2.5-4-3"/></svg>) },
     ]
   },
   {
@@ -45,9 +45,9 @@ const tools = [
   {
     group: 'unicode',
     items: [
-      { key: 'boldsans', title: 'Bold Sans',    fn: toBoldSans,    icon: (<span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1 }}>𝗔𝗮</span>) },
-      { key: 'script',   title: 'Script',       fn: toScript,      icon: (<span style={{ fontSize: 13, lineHeight: 1 }}>𝒜𝒶</span>) },
-      { key: 'double',   title: 'Doublestruck', fn: toDoublestruck, icon: (<span style={{ fontSize: 11, lineHeight: 1 }}>𝔸𝕒</span>) },
+      { key: 'boldsans', title: 'Bold Sans',    fn: toggleBoldSans,    icon: (<span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1 }}>𝗔𝗮</span>) },
+      { key: 'script',   title: 'Script',       fn: toggleScript,      icon: (<span style={{ fontSize: 13, lineHeight: 1 }}>𝒜𝒶</span>) },
+      { key: 'double',   title: 'Doublestruck', fn: toggleDoublestruck, icon: (<span style={{ fontSize: 11, lineHeight: 1 }}>𝔸𝕒</span>) },
     ]
   }
 ];
