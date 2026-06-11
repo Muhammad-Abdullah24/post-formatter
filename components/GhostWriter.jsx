@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const MODES = [
   { key: 'topic',  label: 'From Topic',  placeholder: 'e.g. Why most founders fail at LinkedIn in their first 90 days' },
-  { key: 'refine', label: 'Refine Draft', placeholder: 'Paste your draft here and AI will rewrite it...' },
+  { key: 'refine', label: 'Refine Draft', placeholder: 'Paste your draft here and we will rewrite it for you...' },
 ];
 
 export default function Ghostwriter({ onGenerated }) {

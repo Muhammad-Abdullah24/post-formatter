@@ -1132,6 +1132,16 @@ body::before {
   white-space: nowrap;
 }
 
+.li-action-insightful-active,
+.li-action-insightful-active:hover {
+  color: #D6971D !important;
+}
+
+.li-action-insightful-active svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
 /* ── Fold analysis badges ── */
 .li-analysis-wrap {
   display: flex;
@@ -1214,6 +1224,12 @@ body::before {
 [data-theme="dark"] .li-menu-btn:hover,
 [data-theme="dark"] .li-action-btn:hover {
   background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .li-action-insightful-active,
+[data-theme="dark"] .li-action-insightful-active:hover {
+  color: #F5C518 !important;
 }
 
 [data-theme="dark"] .li-premium-badge {

@@ -127,6 +127,18 @@ function ReactionStack() {
 }
 
 /* ─── Action bar icons (pixel-matched to LinkedIn) ─── */
+function InsightfulActionIcon() {
+  return (
+    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="8" fill="#F5C518" />
+      <path
+        fill="#fff"
+        d="M8 2a3.5 3.5 0 0 0-3.5 3.5c0 1.4.9 2.6 2.2 3.2V10c0 .4.3.8.8.8h1c.5 0 .8-.4.8-.8V8.7c1.3-.6 2.2-1.8 2.2-3.2A3.5 3.5 0 0 0 8 2zm1.5 10.5H6.5v0.8h3v-0.8zM9 13.8H7v0.8h2v-0.8z"
+      />
+    </svg>
+  );
+}
+
 function LikeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -269,9 +281,7 @@ export default function LinkedInPreview({ text }) {
               </div>
               <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen...</p>
               <div className="li-post-meta">
-                <span>6mo</span>
-                <span className="li-meta-dot" aria-hidden="true">•</span>
-                <span>Edited</span>
+                <span>10h</span>
                 <span className="li-meta-dot" aria-hidden="true">•</span>
                 <GlobeIcon />
               </div>
@@ -304,7 +314,7 @@ export default function LinkedInPreview({ text }) {
           <div className="li-social-counts">
             <div className="li-reactions-row">
               <ReactionStack />
-              <span className="li-reactions-text">Noor Ul Ain Javed and 10 others</span>
+              <span className="li-reactions-text">Noor and 10 others</span>
             </div>
             <div className="li-counts-row">
               <span>40 comments</span>
@@ -341,8 +351,8 @@ export default function LinkedInPreview({ text }) {
               </svg>
             </div>
 
-            <button type="button" className="li-action-btn" aria-label="Like">
-              <LikeIcon /><span>Like</span>
+            <button type="button" className="li-action-btn li-action-insightful-active" aria-label="Insightful">
+              <InsightfulActionIcon /><span>Insightful</span>
             </button>
             <button type="button" className="li-action-btn" aria-label="Comment">
               <CommentIcon /><span>Comment</span>
