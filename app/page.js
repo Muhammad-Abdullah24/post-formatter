@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { getFoldAnalysis } from '@/lib/foldline';
+import { toggleBold, toggleItalic, toggleUnderline } from '@/lib/unicode';
 import Toolbar from '@/components/Toolbar';
 import StylePreviews from '@/components/StylePreviews';
 import AiFormatPanel from '@/components/AiFormatPanel';
@@ -31,30 +32,19 @@ const NAV_LINKS = [
 
 const FOOTER_COLS = [
   {
-    title: 'Services',
-    links: [
-      { label: 'Ghostwriting', href: 'https://hirenum.com' },
-      { label: 'Executive Branding', href: 'https://hirenum.com' },
-      { label: 'Profile Strategy', href: 'https://hirenum.com' },
-      { label: 'Content Systems', href: 'https://hirenum.com' },
-    ],
-  },
-  {
     title: 'Resources',
     links: [
       { label: 'Blog', href: 'https://hirenum.com' },
       { label: 'Post Formatter', href: '#' },
       { label: 'Hook Generator', href: '#ghostwriter' },
-      { label: 'LinkedIn Playbook', href: 'https://hirenum.com' },
     ],
   },
   {
     title: 'Socials',
     links: [
       { label: 'LinkedIn', href: 'https://hirenum.com' },
-      { label: 'Twitter / X', href: 'https://hirenum.com' },
-      { label: 'Threads', href: 'https://hirenum.com' },
-      { label: 'Instagram', href: 'https://hirenum.com' },
+      { label: 'WhatsApp', href: 'https://hirenum.com' },
+      { label: 'Email', href: 'mailto:info@hirenum.com' },
     ],
   },
   {
@@ -63,7 +53,7 @@ const FOOTER_COLS = [
       { label: 'About Us', href: 'https://hirenum.com' },
       { label: 'Contact', href: 'mailto:info@hirenum.com' },
       { label: 'Careers', href: 'https://hirenum.com' },
-      { label: 'Privacy Policy', href: 'https://hirenum.com' },
+      { label: 'Privacy Policy' },
     ],
   },
 ];
@@ -120,20 +110,31 @@ export default function Home() {
   const [gwError, setGwError] = useState('');
   const [copied, setCopied] = useState(false);
   const [formatOpen, setFormatOpen] = useState(false);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'dark';
+    }
+    return 'dark';
+  });
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme') || 'dark';
-    setTheme(saved);
-    document.documentElement.setAttribute('data-theme', saved);
-    if (saved === 'dark') {
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 10); }
@@ -189,6 +190,22 @@ export default function Home() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      const key = e.key.toLowerCase();
+      if (key === 'b') {
+        e.preventDefault();
+        handleApply(toggleBold);
+      } else if (key === 'i') {
+        e.preventDefault();
+        handleApply(toggleItalic);
+      } else if (key === 'u') {
+        e.preventDefault();
+        handleApply(toggleUnderline);
+      }
+    }
+  };
 
   async function handleGenerate() {
     const content = gwInput.trim();
@@ -258,16 +275,6 @@ export default function Home() {
             </div>
           </div>
           <div className="nav-actions">
-            {analysis && (
-              <div style={{ display: 'flex', gap: 6 }}>
-                <span className={`badge ${analysis.desktopFolded ? 'badge-warn' : 'badge-ok'}`}>
-                  {analysis.desktopFolded ? '⚠ Desktop' : '✓ Desktop'}
-                </span>
-                <span className={`badge ${analysis.mobileFolded ? 'badge-warn' : 'badge-ok'}`}>
-                  {analysis.mobileFolded ? '⚠ Mobile' : '✓ Mobile'}
-                </span>
-              </div>
-            )}
             <button
               onClick={toggleTheme}
               className="btn btn-ghost btn-icon"
@@ -275,13 +282,13 @@ export default function Home() {
               aria-label="Toggle theme"
               style={{ borderRadius: '10px', width: '36px', height: '36px' }}
             >
-              {theme === 'light' ? (
+              {!mounted || theme === 'dark' ? (
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                 </svg>
               ) : (
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                 </svg>
               )}
             </button>
@@ -304,10 +311,11 @@ export default function Home() {
       {/* ── Hero ── */}
       <header className="hero anim-fade-up-2">
         <div className="container">
-          <div className="hero-eyebrow-clean">
-            <span>Free tool by <span className="brand-accent">Hirenum</span></span>
-            <span className="bullet-sep">•</span>
-            <span>No registration required</span>
+          <div className="hero-floating-badge anim-float">
+            <span className="hero-badge-tag">Free Tool</span>
+            <span className="hero-badge-text">
+              Built by <strong>Hirenum</strong> for LinkedIn creators
+            </span>
           </div>
           <h1 className="hero-title">
             LinkedIn Post{' '}
@@ -329,8 +337,20 @@ export default function Home() {
 
             {/* Editor */}
             <section id="editor" className="section-card hover-lift">
-              <div className="section-card-header">
+              <div className="section-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Post Editor</span>
+                <button
+                  onClick={() => setFormatOpen(true)}
+                  disabled={!text.trim() || text.trim().length < 30}
+                  className="btn btn-format btn-sm"
+                  title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Let AI Format It
+                </button>
               </div>
               <div className="section-card-body-flush" style={{ display: 'flex', flexDirection: 'column' }}>
                 <Toolbar
@@ -361,6 +381,7 @@ export default function Home() {
                   className="editor-area"
                   value={text}
                   onChange={e => handleTextChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder={"Write your LinkedIn post here.\n\nSelect text and use the toolbar to apply formatting to specific words or lines."}
                 />
                 <div className="editor-footer">
@@ -371,12 +392,12 @@ export default function Home() {
                     onClick={() => setFormatOpen(true)}
                     disabled={!text.trim() || text.trim().length < 30}
                     className="btn btn-format btn-sm"
-                    title="Restructure spacing, rhythm, and emphasis for LinkedIn"
+                    title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
                   >
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
-                    AI Format
+                    Let AI Format It
                   </button>
                   <div style={{ flex: 1 }} />
                   <button
@@ -497,21 +518,27 @@ export default function Home() {
               </p>
             </div>
 
-            {/* 4 link columns */}
+            {/* 3 link columns */}
             {FOOTER_COLS.map(col => (
               <div key={col.title}>
                 <p className="footer-col-title">{col.title}</p>
                 <div className="footer-col-links">
                   {col.links.map(link => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target={link.href.startsWith('http') ? '_blank' : undefined}
-                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className="footer-col-link"
-                    >
-                      {link.label}
-                    </a>
+                    link.href ? (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        target={link.href.startsWith('http') ? '_blank' : undefined}
+                        rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className="footer-col-link"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <span key={link.label} className="footer-col-text">
+                        {link.label}
+                      </span>
+                    )
                   ))}
                 </div>
               </div>

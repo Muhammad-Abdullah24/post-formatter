@@ -18,7 +18,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
   async function runFormat() {
     const trimmed = text.trim();
     if (!trimmed || trimmed.length < 30) {
-      setError('Write at least a few sentences before using AI Format.');
+      setError('Write at least a few sentences before using Let AI Format It.');
       return;
     }
 
@@ -62,7 +62,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
       <div className="ai-format-panel anim-slide-down" onClick={e => e.stopPropagation()}>
         <div className="ai-format-header">
           <div>
-            <h3 className="ai-format-title">AI Format</h3>
+            <h3 className="ai-format-title">Let AI Format It</h3>
             <p className="ai-format-subtitle">
               Restructures your post for LinkedIn readability — spacing, rhythm, emphasis, and fold-line optimization. Your words stay the same.
             </p>

@@ -159,7 +159,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
 
         {/* AI Format */}
         <button
-          title="AI Format — restructure spacing, rhythm, and emphasis for LinkedIn"
+          title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
           onClick={onFormatOpen}
           disabled={!text.trim() || text.trim().length < 30}
           className="tb-btn tb-btn-format"
@@ -168,7 +168,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
-          AI Format
+          Let AI Format It
         </button>
 
         <div className="divider" />
@@ -275,21 +275,34 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
 
       {/* Stats row */}
       {text.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '8px 20px 12px', borderTop: '1px solid var(--border)' }}>
-          {[
-            { label: `${text.length} chars` },
-            { label: `${words} words` },
-            { label: `${readTime} min read` },
-          ].map(s => (
-            <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
-              {s.label}
-            </span>
-          ))}
-          {readability && (
-            <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: readability.color }}>
-              {readability.label.toUpperCase()} READ
-            </span>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 12px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {[
+              { label: `${text.length} chars` },
+              { label: `${words} words` },
+              { label: `${readTime} min read` },
+            ].map(s => (
+              <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
+                {s.label}
+              </span>
+            ))}
+            {readability && (
+              <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: readability.color }}>
+                {readability.label.toUpperCase()} READ
+              </span>
+            )}
+          </div>
+          <span style={{
+            fontSize: 10,
+            fontFamily: 'Outfit, sans-serif',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            color: (3000 - text.length) < 0 ? 'var(--danger)' : 'var(--ink-tertiary)'
+          }}>
+            {3000 - text.length >= 0
+              ? `${3000 - text.length} CHARS REMAINING`
+              : `${text.length - 3000} CHARS OVER LIMIT`}
+          </span>
         </div>
       )}
     </div>

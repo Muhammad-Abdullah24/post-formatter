@@ -13,7 +13,7 @@ export async function POST(request) {
 
     if (!trimmed || trimmed.length < 30) {
       return Response.json(
-        { error: 'Write at least a few sentences before using AI Format.' },
+        { error: 'Write at least a few sentences before using Let AI Format It.' },
         { status: 400 }
       );
     }
@@ -59,7 +59,7 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Format failed:', error);
-    return Response.json({ error: 'AI Format failed. Check your OpenAI API key.' }, { status: 500 });
+    return Response.json({ error: 'Let AI Format It failed. Check your OpenAI API key.' }, { status: 500 });
   }
 }
 

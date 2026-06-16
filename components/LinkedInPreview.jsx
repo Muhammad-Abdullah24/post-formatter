@@ -97,29 +97,20 @@ function ReactionStack() {
     <div className="li-reaction-stack">
       {/* Like */}
       <span className="li-reaction-bubble li-reaction-like" title="Like">
-        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
-          <path
-            fill="#fff"
-            d="M12 6h-2.5c-.2 0-.4-.1-.4-.3l-.4-1.8c-.2-.7-.7-1.1-1.3-1.1h-.1c-.7 0-1.2.5-1.2 1.2v2H5c-.6 0-1.1.5-1.1 1.1v.1l.7 4.2c.1.7.7 1.2 1.4 1.2h4.1c.6 0 1.1-.5 1.2-1.1l.6-3.3c.1-.8-.4-1.5-1.2-1.5z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11">
+          <path fill="#fff" d="M21.2 10.3c-.4-.5-1-.8-1.7-.8h-4.8l.8-3.4c.1-.6-.1-1.3-.5-1.7-.4-.5-1-.7-1.7-.7h-.3c-.6 0-1.2.4-1.5.9l-3.3 6.6H4c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h2.5c.8 0 1.5-.5 1.8-1.2h6.9c1 0 1.9-.6 2.3-1.5l2.4-6.4c.3-.8.2-1.9-.3-2.7z"/>
         </svg>
       </span>
       {/* Love */}
       <span className="li-reaction-bubble li-reaction-love" title="Love">
-        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
-          <path
-            fill="#fff"
-            d="M8 13.5c-.1 0-.2 0-.3-.1C7.5 13.2 3.6 9.9 3.6 6.6c0-1.8 1.4-3.3 3.2-3.3 1.2 0 2.3.7 2.8 1.8.5-1.1 1.6-1.8 2.8-1.8 1.8 0 3.2 1.5 3.2 3.3 0 3.3-3.9 6.6-4.1 6.8-.1.1-.2.1-.3.1z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="10" height="10">
+          <path fill="#fff" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </span>
       {/* Insightful */}
       <span className="li-reaction-bubble li-reaction-insight" title="Insightful">
-        <svg viewBox="0 0 16 16" width="10" height="10" fill="none">
-          <path
-            fill="#fff"
-            d="M8 2a3.5 3.5 0 0 0-3.5 3.5c0 1.4.9 2.6 2.2 3.2V10c0 .4.3.8.8.8h1c.5 0 .8-.4.8-.8V8.7c1.3-.6 2.2-1.8 2.2-3.2A3.5 3.5 0 0 0 8 2zm1.5 10.5H6.5v0.8h3v-0.8zM9 13.8H7v0.8h2v-0.8z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11">
+          <path fill="#fff" d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7zm1 18h-2v1h2v-1zm1 2h-4v1h4v-1z"/>
         </svg>
       </span>
     </div>
@@ -199,7 +190,7 @@ function PostBody({ text, analysis, expanded, onExpand, viewMode }) {
         type="button"
         className="li-more-btn"
         onClick={onExpand}
-      >…more</button>
+      >…see more</button>
     </div>
   );
 }
@@ -210,7 +201,13 @@ export default function LinkedInPreview({ text }) {
   const [viewMode, setViewMode] = useState('desktop'); // 'desktop' or 'mobile'
   const analysis = getFoldAnalysis(text || '');
 
-  useEffect(() => { setExpanded(false); }, [text, viewMode]);
+  const [prevText, setPrevText] = useState(text);
+  const [prevViewMode, setPrevViewMode] = useState(viewMode);
+  if (text !== prevText || viewMode !== prevViewMode) {
+    setPrevText(text);
+    setPrevViewMode(viewMode);
+    setExpanded(false);
+  }
 
   return (
     <div className="li-preview-container">
@@ -290,10 +287,8 @@ export default function LinkedInPreview({ text }) {
             {/* Menu button */}
             <div className="li-post-menu">
               <button type="button" className="li-menu-btn" aria-label="More options">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <circle cx="6" cy="12" r="2" />
-                  <circle cx="12" cy="12" r="2" />
-                  <circle cx="18" cy="12" r="2" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                  <path d="M14 12a2 2 0 11-2-2 2 2 0 012 2zM4 10a2 2 0 102 2 2 2 0 00-2-2zm16 0a2 2 0 102 2 2 2 0 00-2-2z"></path>
                 </svg>
               </button>
             </div>
@@ -367,17 +362,7 @@ export default function LinkedInPreview({ text }) {
         </article>
       </div>
 
-      {/* Fold analysis badges */}
-      {text && text.trim() && (
-        <div className="li-analysis-wrap" style={{ width: '100%', maxWidth: viewMode === 'mobile' ? '375px' : '552px' }}>
-          <div className={`li-analysis-badge ${analysis.desktopFolded ? 'li-analysis-warn' : 'li-analysis-ok'}`}>
-            {analysis.desktopFolded ? '⚠ Desktop fold' : '✓ Desktop ok'}
-          </div>
-          <div className={`li-analysis-badge ${analysis.mobileFolded ? 'li-analysis-warn' : 'li-analysis-ok'}`}>
-            {analysis.mobileFolded ? '⚠ Mobile fold' : '✓ Mobile ok'}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
