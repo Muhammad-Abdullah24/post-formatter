@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   toggleBold, toggleItalic, toggleUnderline, toggleStrikethrough,
   toBulletPoints, toNumberedList, toChecklist,
@@ -52,46 +53,95 @@ const tools = [
   }
 ];
 
-function getReadabilityScore(text) {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  const syllables = words.reduce((acc, word) => acc + Math.max(1, word.toLowerCase().replace(/[^aeiou]/g, '').length), 0);
-  if (words.length === 0 || sentences.length === 0) return null;
-  const score = 206.835 - 1.015 * (words.length / sentences.length) - 84.6 * (syllables / words.length);
-  if (score >= 70) return { label: 'Easy', color: 'var(--success)' };
-  if (score >= 50) return { label: 'Medium', color: 'var(--warning)' };
-  return { label: 'Hard', color: 'var(--danger)' };
-}
-
-export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, onFormatOpen, canUndo, canRedo }) {
+export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, canUndo, canRedo }) {
   const [emojiOpen, setEmojiOpen]   = useState(false);
   const [activeCategory, setActiveCategory] = useState('Hands');
   const [hookOpen, setHookOpen]     = useState(false);
   const [hooks, setHooks]           = useState([]);
+  const [diagnosis, setDiagnosis]   = useState('');
+  const [strongestIndex, setStrongestIndex] = useState(-1);
   const [hooksLoading, setHooksLoading] = useState(false);
   const [hooksError, setHooksError] = useState('');
-  const emojiRef = useRef(null);
-  const hookRef  = useRef(null);
+  // Fixed-viewport coordinates for the portaled popovers.
+  const [emojiPos, setEmojiPos]     = useState(null);
+  const [hookPos, setHookPos]       = useState(null);
 
-  const readability = text.length > 20 ? getReadabilityScore(text) : null;
+  const emojiBtnRef = useRef(null); // anchor button
+  const hookBtnRef  = useRef(null);
+  const emojiPopRef = useRef(null); // portaled panel (for outside-click)
+  const hookPopRef  = useRef(null);
+  const hookReqRef  = useRef(0);    // guards against stale responses
+
+  const EMOJI_W = 272;
+  const HOOK_W = 380;
+  // LinkedIn truncates the mobile feed preview around here; a longer hook risks
+  // being cut off before the "see more" tap.
+  const PREVIEW_LIMIT = 210;
+
   const words       = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
   const readTime    = Math.max(1, Math.ceil(words / 200));
 
+  // Position a popover just below its anchor button, clamped to the viewport
+  // so it can never overflow the screen edges.
+  const positionFor = useCallback((btn, width, align = 'left') => {
+    if (!btn) return null;
+    const r = btn.getBoundingClientRect();
+    const top = r.bottom + 6;
+    let left = align === 'right' ? r.right - width : r.left;
+    left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+    return { top, left };
+  }, []);
+
+  // Close on outside click. Because the panels are portaled to <body>, we check
+  // both the anchor button and the panel itself.
   useEffect(() => {
     function handler(e) {
-      if (emojiRef.current && !emojiRef.current.contains(e.target)) setEmojiOpen(false);
-      if (hookRef.current  && !hookRef.current.contains(e.target))  setHookOpen(false);
+      if (
+        emojiBtnRef.current && !emojiBtnRef.current.contains(e.target) &&
+        emojiPopRef.current && !emojiPopRef.current.contains(e.target)
+      ) setEmojiOpen(false);
+      if (
+        hookBtnRef.current && !hookBtnRef.current.contains(e.target) &&
+        hookPopRef.current && !hookPopRef.current.contains(e.target)
+      ) setHookOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Keep popovers glued to their buttons while the page scrolls or resizes.
+  useEffect(() => {
+    if (!emojiOpen && !hookOpen) return;
+    function reposition() {
+      if (emojiOpen) setEmojiPos(positionFor(emojiBtnRef.current, EMOJI_W, 'right'));
+      if (hookOpen)  setHookPos(positionFor(hookBtnRef.current, HOOK_W, 'right'));
+    }
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [emojiOpen, hookOpen, positionFor]);
+
+  function toggleEmoji() {
+    setEmojiOpen(prev => {
+      const next = !prev;
+      if (next) setEmojiPos(positionFor(emojiBtnRef.current, EMOJI_W, 'right'));
+      return next;
+    });
+  }
+
   async function fetchHooks() {
     const trimmed = text.trim();
     if (!trimmed || trimmed.length < 20) return;
+    const reqId = ++hookReqRef.current;
     setHookOpen(true);
+    setHookPos(positionFor(hookBtnRef.current, HOOK_W, 'right'));
     setHooksLoading(true);
     setHooks([]);
+    setDiagnosis('');
+    setStrongestIndex(-1);
     setHooksError('');
     try {
       const res = await fetch('/api/hooks', {
@@ -99,26 +149,43 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: trimmed }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      // Ignore a response that a newer request has superseded.
+      if (reqId !== hookReqRef.current) return;
+
       if (!res.ok) {
         setHooksError(data.error || 'Failed to generate hooks.');
         setHooksLoading(false);
         return;
       }
-      setHooks(data.hooks || []);
-      if (!data.hooks?.length) {
+
+      const list = Array.isArray(data.hooks) ? [...data.hooks] : [];
+      // Append the optional refined original as a final, clearly-labelled card.
+      if (data.refined) {
+        list.push({ text: data.refined, pattern: 'Refined Original', why: 'A tighter take on the hook you already wrote.' });
+      }
+
+      setHooks(list);
+      setDiagnosis(data.diagnosis || '');
+      setStrongestIndex(Number.isInteger(data.strongestIndex) ? data.strongestIndex : -1);
+      if (!list.length) {
         setHooksError('No hooks were generated. Try adding more detail to your post.');
       }
     } catch {
+      if (reqId !== hookReqRef.current) return;
       setHooksError('Request failed. Check your connection and try again.');
       setHooks([]);
     }
-    setHooksLoading(false);
+    if (reqId === hookReqRef.current) setHooksLoading(false);
   }
 
   function applyHook(hookText) {
+    // Replace the first non-empty line — the hook the reader actually sees,
+    // and exactly what the API analyzed.
     const lines = text.split('\n');
-    lines[0] = hookText;
+    const idx = lines.findIndex(l => l.trim().length > 0);
+    lines[idx === -1 ? 0 : idx] = hookText;
     onFormat(lines.join('\n'));
     setHookOpen(false);
   }
@@ -127,7 +194,11 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
     <div style={{ borderBottom: '1px solid var(--glass-border)' }}>
 
       {/* Tool row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '10px 20px', flexWrap: 'wrap' }}>
+      <div
+        className="toolbar-row"
+        style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '10px 20px', flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <style dangerouslySetInnerHTML={{ __html: `.toolbar-row::-webkit-scrollbar { display: none; }` }} />
 
         {tools.map((group, gi) => (
           <div key={group.group} style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -157,25 +228,10 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
 
         <div className="divider" />
 
-        {/* AI Format */}
-        <button
-          title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
-          onClick={onFormatOpen}
-          disabled={!text.trim() || text.trim().length < 30}
-          className="tb-btn tb-btn-format"
-          style={{ width: 'auto', padding: '0 10px', gap: 6, fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em' }}
-        >
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          Let AI Format It
-        </button>
-
-        <div className="divider" />
-
         {/* Hook suggestions */}
-        <div ref={hookRef} style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', flex: '0 0 auto' }}>
           <button
+            ref={hookBtnRef}
             title="Generate hook suggestions based on your full post"
             onClick={fetchHooks}
             disabled={!text.trim() || text.trim().length < 20}
@@ -188,8 +244,8 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
             Hooks
           </button>
 
-          {hookOpen && (
-            <div className="popover anim-slide-down" style={{ top: 36, left: 0, width: 380, maxWidth: 'calc(100vw - 40px)' }}>
+          {hookOpen && hookPos && createPortal(
+            <div ref={hookPopRef} className="popover anim-slide-down" style={{ position: 'fixed', top: hookPos.top, left: hookPos.left, width: HOOK_W, maxWidth: 'calc(100vw - 16px)', zIndex: 1000 }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(27,184,189,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                 <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.18em', color: '#1BB8BD', textTransform: 'uppercase' }}>Hook Suggestions</span>
                 {!hooksLoading && (
@@ -208,42 +264,83 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                   </div>
                 ) : hooksError ? (
                   <p style={{ padding: '8px 4px', fontSize: 12, color: 'var(--danger)', lineHeight: 1.5 }}>{hooksError}</p>
-                ) : hooks.length > 0 ? hooks.map((hook, i) => (
-                  <button
-                    key={i}
-                    onClick={() => applyHook(hook.text)}
-                    style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: 'pointer', fontSize: 13, color: 'var(--ink)', lineHeight: 1.5, fontFamily: 'Inter, sans-serif', transition: 'all 0.15s', width: '100%' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,184,189,0.08)'; e.currentTarget.style.borderColor = 'rgba(27,184,189,0.4)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'var(--glass-bg)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
-                  >
-                    <span className="card-label" style={{ display: 'block', marginBottom: 4 }}>
-                      {hook.pattern || `Option ${i + 1}`}
-                    </span>
-                    {hook.text}
-                  </button>
-                )) : (
+                ) : hooks.length > 0 ? (
+                  <>
+                    {diagnosis && (
+                      <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--warning)' }}>💡 Current hook diagnosis</span>
+                        <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-secondary)', fontFamily: 'Inter, sans-serif', fontStyle: 'italic' }}>{diagnosis}</p>
+                      </div>
+                    )}
+                    {hooks.map((hook, i) => {
+                      const isStrongest = i === strongestIndex;
+                      const tooLong = hook.text.length > PREVIEW_LIMIT;
+                      return (
+                        <div
+                          key={i}
+                          style={{ padding: '10px 12px', borderRadius: 8, border: isStrongest ? '1px solid rgba(16,185,129,0.35)' : '1px solid var(--glass-border)', background: isStrongest ? 'rgba(16,185,129,0.04)' : 'var(--glass-bg)', display: 'flex', flexDirection: 'column', gap: 6 }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                            <span className="card-label" style={{ fontSize: 10, color: '#1BB8BD', fontWeight: 800, fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                              {hook.pattern || `Option ${i + 1}`}
+                            </span>
+                            {isStrongest && (
+                              <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--success)', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: 99, border: '1px solid rgba(16,185,129,0.2)' }}>
+                                Strongest pick
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ margin: 0, fontSize: 13, color: 'var(--ink)', lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>{hook.text}</p>
+                          {hook.why && (
+                            <p style={{ margin: 0, fontSize: 11.5, color: 'var(--ink-tertiary)', lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
+                              <span style={{ color: '#1BB8BD', fontWeight: 700 }}>Why: </span>{hook.why}
+                            </p>
+                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 2 }}>
+                            <span
+                              title={tooLong ? 'May be cut off before "see more" in the mobile feed' : 'Fits inside the feed preview'}
+                              style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.04em', color: tooLong ? 'var(--warning)' : 'var(--ink-tertiary)' }}
+                            >
+                              {tooLong ? `⚠ ${hook.text.length} chars · may truncate` : `${hook.text.length} chars`}
+                            </span>
+                            <button
+                              onClick={() => applyHook(hook.text)}
+                              style={{ fontSize: 11, fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: '#fff', background: isStrongest ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #1BB8BD, #DC0078)', border: 'none', borderRadius: 6, padding: '5px 12px', cursor: 'pointer', letterSpacing: '0.04em', transition: 'opacity 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.opacity = 0.9; }}
+                              onMouseLeave={e => { e.currentTarget.style.opacity = 1; }}
+                            >
+                              Use this hook
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
                   <p style={{ padding: '8px 0', textAlign: 'center', fontSize: 12, color: 'var(--ink-tertiary)' }}>No hooks generated.</p>
                 )}
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
 
         <div className="divider" />
 
         {/* Emoji picker */}
-        <div ref={emojiRef} style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', flex: '0 0 auto' }}>
           <button
+            ref={emojiBtnRef}
             title="Insert emoji"
-            onClick={() => setEmojiOpen(p => !p)}
+            onClick={toggleEmoji}
             className="tb-btn"
             style={{ fontSize: 15, background: emojiOpen ? 'rgba(27,184,189,0.1)' : 'transparent' }}
           >
             🙂
           </button>
 
-          {emojiOpen && (
-            <div className="popover anim-slide-down" style={{ top: 36, right: 0, width: 272 }}>
+          {emojiOpen && emojiPos && createPortal(
+            <div ref={emojiPopRef} className="popover anim-slide-down" style={{ position: 'fixed', top: emojiPos.top, left: emojiPos.left, width: EMOJI_W, maxWidth: 'calc(100vw - 16px)', zIndex: 1000 }}>
               <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--glass-border)', padding: '6px 8px', overflowX: 'auto', background: 'rgba(27,184,189,0.03)' }}>
                 {Object.keys(EMOJIS).map(cat => (
                   <button
@@ -268,7 +365,8 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                   </button>
                 ))}
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </div>
@@ -286,11 +384,6 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                 {s.label}
               </span>
             ))}
-            {readability && (
-              <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: readability.color }}>
-                {readability.label.toUpperCase()} READ
-              </span>
-            )}
           </div>
           <span style={{
             fontSize: 10,

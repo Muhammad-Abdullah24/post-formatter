@@ -9,6 +9,8 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
   const [formatted, setFormatted] = useState('');
   const [changes, setChanges] = useState([]);
   const [issues, setIssues] = useState([]);
+  const [resolvedCount, setResolvedCount] = useState(0);
+  const [noChange, setNoChange] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -26,6 +28,8 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
     setError('');
     setFormatted('');
     setChanges([]);
+    setNoChange(false);
+    setResolvedCount(0);
     setIssues(analyzePostStructure(trimmed).issues);
 
     try {
@@ -43,11 +47,14 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
       }
 
       const result = await res.text();
+      const changed = res.headers.get('X-Format-Changed') !== '0' && result.trim() !== trimmed;
       const summary = buildFormatSummary(trimmed, result);
 
       setFormatted(result);
       setChanges(summary.changes);
-      setIssues(summary.before.issues);
+      setIssues(summary.after.issues);
+      setResolvedCount(Math.max(0, summary.before.issues.length - summary.after.issues.length));
+      setNoChange(!changed);
       setLoading(false);
     } catch {
       setError('Request failed. Check your connection and try again.');
@@ -74,14 +81,18 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
           </button>
         </div>
 
-        {issues.length > 0 && !loading && (
-          <div className="ai-format-issues">
-            <span className="card-label" style={{ display: 'block', marginBottom: 8 }}>Issues detected</span>
-            <ul>
-              {issues.map((issue, i) => (
-                <li key={i}>{issue}</li>
-              ))}
-            </ul>
+        {!loading && !error && formatted && !noChange && (
+          <div className="ai-format-issues" style={{ borderColor: 'rgba(46,160,67,0.25)', background: 'rgba(46,160,67,0.06)' }}>
+            <span className="card-label" style={{ display: 'block', marginBottom: 8, color: 'var(--success)' }}>
+              {resolvedCount > 0
+                ? `✓ Resolved ${resolvedCount} formatting issue${resolvedCount > 1 ? 's' : ''}`
+                : '✓ Formatting refined'}
+            </span>
+            {issues.length > 0 && (
+              <ul style={{ marginTop: 4 }}>
+                <li style={{ opacity: 0.7 }}>Still worth a look: {issues.join('; ')}</li>
+              </ul>
+            )}
           </div>
         )}
 
@@ -92,6 +103,15 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
           </div>
         ) : error ? (
           <p className="ai-format-error">{error}</p>
+        ) : noChange ? (
+          <div className="ai-format-noop">
+            <div className="ai-format-noop-icon" aria-hidden="true">✓</div>
+            <p className="ai-format-noop-title">Your post is already well-structured</p>
+            <p className="ai-format-noop-sub">
+              Short blocks, clean spacing, and a tight fold-line — there&apos;s nothing to reformat.
+              You&apos;re good to publish.
+            </p>
+          </div>
         ) : (
           <>
             <div className="ai-format-compare">
@@ -119,7 +139,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
         )}
 
         <div className="ai-format-actions">
-          {!loading && !error && formatted && (
+          {!loading && !error && formatted && !noChange && (
             <>
               <button type="button" className="btn btn-primary btn-md" onClick={() => { onApply(formatted); onClose(); }}>
                 Apply formatting
@@ -130,7 +150,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
             </>
           )}
           <button type="button" className="btn btn-ghost btn-md" onClick={onClose}>
-            Cancel
+            {noChange ? 'Close' : 'Cancel'}
           </button>
         </div>
       </div>

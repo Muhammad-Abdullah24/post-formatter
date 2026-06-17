@@ -336,21 +336,9 @@ export default function Home() {
           <div className="editor-stack">
 
             {/* Editor */}
-            <section id="editor" className="section-card hover-lift">
+            <section id="editor" className="section-card hover-lift" style={{ overflow: 'visible', zIndex: 10 }}>
               <div className="section-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Post Editor</span>
-                <button
-                  onClick={() => setFormatOpen(true)}
-                  disabled={!text.trim() || text.trim().length < 30}
-                  className="btn btn-format btn-sm"
-                  title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                  Let AI Format It
-                </button>
               </div>
               <div className="section-card-body-flush" style={{ display: 'flex', flexDirection: 'column' }}>
                 <Toolbar
@@ -372,7 +360,6 @@ export default function Home() {
                     }, 0);
                   }}
                   onFormat={handleInstantTextUpdate}
-                  onFormatOpen={() => setFormatOpen(true)}
                   canUndo={historyIndex > 0}
                   canRedo={historyIndex < history.length - 1}
                 />
@@ -473,17 +460,25 @@ export default function Home() {
                 <LinkedInPreview text={text} />
                 {analysis && (
                   <div className="analysis-card">
-                    <p className="card-label" style={{ marginBottom: 8, color: '#1BB8BD' }}>Hook analysis</p>
-                    <p style={{
-                      color: analysis.hookStrength.score === 'strong' ? 'var(--success)'
-                        : analysis.hookStrength.score === 'bad' ? 'var(--danger)'
-                        : 'var(--warning)',
-                      fontSize: 13,
-                      fontFamily: 'Inter, sans-serif',
-                      lineHeight: 1.6,
-                    }}>
-                      {analysis.hookStrength.message}
-                    </p>
+                    <p className="card-label" style={{ marginBottom: 12, color: '#1BB8BD' }}>Hook analysis</p>
+                    {analysis.hookStrength.points && analysis.hookStrength.points.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {analysis.hookStrength.points.map((point, idx) => (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, fontFamily: 'Inter, sans-serif', lineHeight: 1.5 }}>
+                            <span style={{ flexShrink: 0, marginTop: 2 }}>
+                              {point.type === 'good' ? '✅' : point.type === 'bad' ? '⚠️' : '💡'}
+                            </span>
+                            <span style={{ color: point.type === 'good' ? 'var(--success)' : point.type === 'bad' ? 'var(--danger)' : 'var(--warning)' }}>
+                              {point.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ color: analysis.hookStrength.color || 'var(--ink-tertiary)', fontSize: 13, fontFamily: 'Inter, sans-serif', lineHeight: 1.6 }}>
+                        {analysis.hookStrength.message}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

@@ -1962,6 +1962,45 @@ input:focus {
   line-height: 1.5;
 }
 
+.ai-format-noop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 32px 24px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(46, 160, 67, 0.25);
+  background: rgba(46, 160, 67, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+.ai-format-noop-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(46, 160, 67, 0.15);
+  color: var(--success);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.ai-format-noop-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ai-format-noop-sub {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+  max-width: 380px;
+}
+
 .ai-format-compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
