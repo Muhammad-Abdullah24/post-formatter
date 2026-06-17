@@ -7,26 +7,20 @@ import Toolbar from '@/components/Toolbar';
 import StylePreviews from '@/components/StylePreviews';
 import AiFormatPanel from '@/components/AiFormatPanel';
 import LinkedInPreview from '@/components/LinkedInPreview';
-
-const GW_MODES = [
-  { key: 'topic',  label: 'From Topic' },
-  { key: 'refine', label: 'Refine Draft' },
-];
+import SmartToast from '@/components/SmartToast';
 
 const MARQUEE_ITEMS = [
   'Fold-line preview',
   'Unicode formatting',
-  'Hirenum AI Writer',
   'Hook suggestions',
   'Readability scoring',
   'One-click copy',
 ];
 
 const NAV_LINKS = [
-  { href: '#editor',      label: 'Editor' },
-  { href: '#styles',      label: 'Styles' },
-  { href: '#ghostwriter', label: 'AI Writer' },
-  { href: '#preview',     label: 'Preview' },
+  { href: '#editor',  label: 'Editor' },
+  { href: '#styles',  label: 'Styles' },
+  { href: '#preview', label: 'Preview' },
 ];
 
 // Where the "Book a free audit" CTA points. Swap for your booking/calendar link.
@@ -38,7 +32,7 @@ const FOOTER_COLS = [
     links: [
       { label: 'Blog', href: 'https://hirenum.com' },
       { label: 'Post Formatter', href: '#' },
-      { label: 'Hook Generator', href: '#ghostwriter' },
+      { label: 'Hook Generator', href: '#editor' },
     ],
   },
   {
@@ -105,11 +99,6 @@ export default function Home() {
     }
   };
 
-  const [gwMode, setGwMode] = useState('topic');
-  const [gwInput, setGwInput] = useState('');
-  const [gwLoading, setGwLoading] = useState(false);
-  const [gwOutput, setGwOutput] = useState('');
-  const [gwError, setGwError] = useState('');
   const [copied, setCopied] = useState(false);
   const [formatOpen, setFormatOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
@@ -208,44 +197,6 @@ export default function Home() {
       }
     }
   };
-
-  async function handleGenerate() {
-    const content = gwInput.trim();
-    if (!content && gwMode !== 'refine') return;
-    if (gwMode === 'refine' && !content && !text) return;
-    setGwLoading(true);
-    setGwOutput('');
-    setGwError('');
-    try {
-      const res = await fetch('/api/ghostwriter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: gwMode,
-          content: gwMode === 'refine' ? (content || text) : content,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setGwError(data.error || 'Generation failed. Please try again.');
-        setGwLoading(false);
-        return;
-      }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let result = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        result += decoder.decode(value, { stream: true });
-        setGwOutput(result);
-      }
-      setGwLoading(false);
-    } catch {
-      setGwError('Request failed. Check your connection and try again.');
-      setGwLoading(false);
-    }
-  }
 
   const analysis = text ? getFoldAnalysis(text) : null;
   const marqueeContent = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
@@ -401,55 +352,6 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Ghostwriter */}
-            <section id="ghostwriter" className="section-card hover-lift">
-              <div className="section-card-header">
-                <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Hirenum AI Writer</span>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {GW_MODES.map(m => (
-                    <button
-                      key={m.key}
-                      onClick={() => { setGwMode(m.key); setGwInput(''); setGwOutput(''); setGwError(''); }}
-                      className={`mode-pill${gwMode === m.key ? ' active' : ''}`}
-                    >
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="section-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <textarea
-                  className="textarea-inline"
-                  value={gwInput}
-                  onChange={e => setGwInput(e.target.value)}
-                  placeholder={
-                    gwMode === 'topic'
-                      ? 'Enter a topic or idea to write about...'
-                      : 'Paste a draft to refine, or leave empty to refine the current post...'
-                  }
-                  rows={4}
-                />
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <button onClick={handleGenerate} disabled={gwLoading} className={`btn btn-primary btn-md${gwLoading ? ' animate-pulse-glow' : ''}`}>
-                    {gwLoading ? <><span className="pulse-dot">●</span> Writing…</> : 'Generate post'}
-                  </button>
-                  {gwOutput && (
-                    <button
-                      onClick={() => { handleInstantTextUpdate(gwOutput); setGwOutput(''); setGwInput(''); }}
-                      className="btn btn-ghost btn-sm"
-                    >
-                      Use this post
-                    </button>
-                  )}
-                </div>
-                {gwError && (
-                  <p style={{ fontSize: 13, color: 'var(--danger)', lineHeight: 1.5 }}>{gwError}</p>
-                )}
-                {gwOutput && (
-                  <div className="output-box">{gwOutput}</div>
-                )}
-              </div>
-            </section>
           </div>
 
           {/* Right column: Preview */}
@@ -531,6 +433,8 @@ export default function Home() {
         onClose={() => setFormatOpen(false)}
         onApply={handleInstantTextUpdate}
       />
+
+      <SmartToast text={text} />
 
       {/* ── Footer ── */}
       <footer className="site-footer">

@@ -81,6 +81,22 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   const words       = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
   const readTime    = Math.max(1, Math.ceil(words / 200));
 
+  // Ideal LinkedIn post length is ~1,200–1,500 characters. The meter below the
+  // stats row visualizes progress toward that band and lights up inside it.
+  const IDEAL_MIN = 1200;
+  const IDEAL_MAX = 1500;
+  const len = text.length;
+  const idealFillPct = Math.min(len / IDEAL_MAX, 1) * 100;
+  let idealColor = '#1BB8BD';
+  let idealLabel = `${(IDEAL_MIN - len).toLocaleString()} TO IDEAL`;
+  if (len >= IDEAL_MIN && len <= IDEAL_MAX) {
+    idealColor = 'var(--success)';
+    idealLabel = '✓ IDEAL LENGTH';
+  } else if (len > IDEAL_MAX) {
+    idealColor = 'var(--warning)';
+    idealLabel = 'PAST IDEAL';
+  }
+
   // Position a popover just below its anchor button, clamped to the viewport
   // so it can never overflow the screen edges.
   const positionFor = useCallback((btn, width, align = 'left') => {
@@ -196,9 +212,8 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
       {/* Tool row */}
       <div
         className="toolbar-row"
-        style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '10px 20px', flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ display: 'flex', alignItems: 'center', gap: '8px 2px', padding: '10px 20px', flexWrap: 'wrap' }}
       >
-        <style dangerouslySetInnerHTML={{ __html: `.toolbar-row::-webkit-scrollbar { display: none; }` }} />
 
         {tools.map((group, gi) => (
           <div key={group.group} style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -373,29 +388,47 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
 
       {/* Stats row */}
       {text.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 12px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {[
-              { label: `${text.length} chars` },
-              { label: `${words} words` },
-              { label: `${readTime} min read` },
-            ].map(s => (
-              <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
-                {s.label}
-              </span>
-            ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '8px 20px 12px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              {[
+                { label: `${text.length} chars` },
+                { label: `${words} words` },
+                { label: `${readTime} min read` },
+              ].map(s => (
+                <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
+                  {s.label}
+                </span>
+              ))}
+            </div>
+            <span style={{
+              fontSize: 10,
+              fontFamily: 'Outfit, sans-serif',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              color: (3000 - text.length) < 0 ? 'var(--danger)' : 'var(--ink-tertiary)'
+            }}>
+              {3000 - text.length >= 0
+                ? `${3000 - text.length} CHARS REMAINING`
+                : `${text.length - 3000} CHARS OVER LIMIT`}
+            </span>
           </div>
-          <span style={{
-            fontSize: 10,
-            fontFamily: 'Outfit, sans-serif',
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            color: (3000 - text.length) < 0 ? 'var(--danger)' : 'var(--ink-tertiary)'
-          }}>
-            {3000 - text.length >= 0
-              ? `${3000 - text.length} CHARS REMAINING`
-              : `${text.length - 3000} CHARS OVER LIMIT`}
-          </span>
+
+          {/* Ideal-length meter (1,200–1,500 characters) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div
+              title="Ideal LinkedIn post length is 1,200–1,500 characters"
+              style={{ position: 'relative', flex: 1, height: 5, borderRadius: 99, background: 'var(--bg-secondary)', overflow: 'hidden' }}
+            >
+              {/* Highlighted ideal band: 1,200–1,500 maps to 80%–100% of the 0–1,500 track */}
+              <div style={{ position: 'absolute', left: '80%', right: 0, top: 0, bottom: 0, background: 'rgba(16,185,129,0.22)' }} />
+              {/* Live fill */}
+              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${idealFillPct}%`, background: idealColor, borderRadius: 99, transition: 'width 0.25s ease, background 0.25s ease' }} />
+            </div>
+            <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em', color: idealColor, whiteSpace: 'nowrap' }}>
+              {idealLabel}
+            </span>
+          </div>
         </div>
       )}
     </div>

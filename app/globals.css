@@ -85,6 +85,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -216,9 +218,9 @@ body::before {
   top: 0px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 0.5px;
   background: #DC0078;
   box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220,0,120,0.6);
 }
@@ -360,7 +362,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 16px 6px 6px;
+  padding: 8px 18px;
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -430,9 +432,9 @@ body::before {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 0.2em;
-  height: 0.2em;
-  border-radius: 50%;
+  width: 0.15em;
+  height: 0.15em;
+  border-radius: 0.5px;
   background: #DC0078;
   box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220, 0, 120, 0.6);
 }
@@ -489,14 +491,14 @@ body::before {
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: 1fr 440px;
+  grid-template-columns: minmax(0, 1fr) 440px;
   gap: clamp(20px, 3vw, 32px);
   align-items: start;
 }
 
 @media (max-width: 1024px) {
   .workspace-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .nav-links {
@@ -617,6 +619,7 @@ body::before {
   gap: clamp(20px, 3vw, 28px);
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 /* ── Section cards ── */
@@ -661,6 +664,7 @@ body::before {
 .preview-panel {
   position: sticky;
   top: calc(var(--nav-height) + 24px);
+  min-width: 0;
 }
 
 /* preview-scroll base: background set by LinkedIn-specific rule below */
@@ -714,6 +718,8 @@ body::before {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* ── View Switcher ── */
@@ -2287,9 +2293,9 @@ body,
   top: 0px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 0.5px;
   background: #DC0078;
   box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220,0,120,0.6);
 }
@@ -2421,5 +2427,259 @@ body,
   user-select: none;
   z-index: 0;
   line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Smart limit toast (bubbly popup)
+═══════════════════════════════════════════════════════════ */
+
+@keyframes toastPop {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.85); }
+  55%  { opacity: 1; transform: translateY(-6px) scale(1.04); }
+  75%  { transform: translateY(2px) scale(0.99); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-3px) rotate(-7deg); }
+}
+
+.smart-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(340px, calc(100vw - 32px));
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  font-family: 'Inter', sans-serif;
+  animation: toastPop 0.55s var(--ease-spring) both;
+  overflow: hidden;
+}
+
+/* Tinted left accent bar per tone */
+.smart-toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--toast-accent, #1BB8BD);
+}
+
+.smart-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 19px;
+  line-height: 1;
+  background: var(--toast-bubble, rgba(27, 184, 189, 0.14));
+  animation: toastBob 2.2s ease-in-out infinite;
+}
+
+.smart-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.smart-toast-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.smart-toast-msg {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+.smart-toast-close {
+  flex-shrink: 0;
+  align-self: flex-start;
+  width: 20px;
+  height: 20px;
+  margin: -2px -2px 0 2px;
+  border: none;
+  background: transparent;
+  color: var(--ink-tertiary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.smart-toast-close:hover {
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--ink);
+}
+
+/* Tone palettes */
+.smart-toast-success { --toast-accent: #10b981; --toast-bubble: rgba(16, 185, 129, 0.16); }
+.smart-toast-accent  { --toast-accent: #1BB8BD; --toast-bubble: rgba(27, 184, 189, 0.16); }
+.smart-toast-warn    { --toast-accent: #f59e0b; --toast-bubble: rgba(245, 158, 11, 0.16); }
+.smart-toast-danger  { --toast-accent: #ef4444; --toast-bubble: rgba(239, 68, 68, 0.16); }
+
+@media (prefers-reduced-motion: reduce) {
+  .smart-toast { animation-duration: 0.01ms; }
+  .smart-toast-icon { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Responsive refinements
+   Consolidated at the end so these override the base rules.
+═══════════════════════════════════════════════════════════ */
+
+/* ── Tablet & below: the workspace collapses to a single column
+   (see the grid rule above). Release the preview from its sticky,
+   fixed-height scroll box so it flows naturally in the stack. ── */
+@media (max-width: 1024px) {
+  :root {
+    --nav-height: 64px;
+  }
+
+  .preview-panel {
+    position: static;
+    top: auto;
+  }
+
+  .preview-scroll {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+/* ── Small tablets / large phones ── */
+@media (max-width: 768px) {
+  .nav-inner {
+    gap: 12px;
+  }
+
+  .nav-brand {
+    gap: 8px;
+  }
+
+  .editor-area {
+    min-height: 260px;
+  }
+
+  .preview-scroll {
+    padding: 12px;
+  }
+}
+
+/* ── Phones ── */
+@media (max-width: 640px) {
+  /* Keep the brand lockup compact: drop the product sub-label + divider */
+  .nav-divider,
+  .nav-product {
+    display: none;
+  }
+
+  .section-card-header {
+    padding: 16px var(--component-pad) 14px;
+  }
+
+  /* Let editor action buttons wrap instead of overflowing */
+  .editor-footer {
+    flex-wrap: wrap;
+  }
+
+  /* Stack the footer's bottom bar */
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Marquee edge-fades scaled down so they don't eat the whole row */
+  .marquee-wrap::before,
+  .marquee-wrap::after {
+    width: 48px;
+  }
+
+  /* Toast spans the bottom of the screen on phones */
+  .smart-toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    max-width: none;
+  }
+}
+
+/* ── Small phones ── */
+@media (max-width: 420px) {
+  /* Full-width view switcher so the Mobile/Desktop toggle isn't squished */
+  .li-view-switcher {
+    width: 100%;
+  }
+
+  .li-switch-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Editor buttons stretch to fill the row when wrapped */
+  .editor-footer .btn {
+    flex: 1 1 auto;
+  }
+
+  /* Compress the LinkedIn action bar so all four actions fit a narrow card
+     instead of overflowing / being clipped on the right edge. */
+  .li-action-bar {
+    padding: 2px 4px;
+  }
+
+  .li-action-viewer {
+    margin-right: 4px;
+  }
+
+  .li-action-btn {
+    font-size: 11px;
+    gap: 3px;
+    padding: 9px 1px;
+  }
+
+  .li-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .li-action-insightful-active svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Let the social-counts row shrink rather than push the card wider */
+  .li-social-counts {
+    font-size: 11px;
+  }
+
+  .li-reactions-text {
+    font-size: 11px;
+  }
 }
 
