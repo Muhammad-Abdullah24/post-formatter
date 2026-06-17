@@ -315,7 +315,9 @@ export default function Home() {
         <div className="container">
           <div className="hero-floating-badge anim-float">
             <span className="hero-badge-text">
-              Built by <strong>Hirenum</strong> for LinkedIn creators
+              Built by{' '}
+              <span className="brand-logo">H<span className="brand-logo-i"><span className="brand-logo-i-stem" /><span className="brand-logo-dot" /></span>renum</span>
+              {' '}for LinkedIn creators
             </span>
           </div>
           <h1 className="hero-title">

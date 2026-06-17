@@ -399,6 +399,44 @@ body::before {
   font-weight: 600;
 }
 
+/* Inline "Hirenum" logo treatment — teal wordmark with the magenta dot on the
+   "i". Sized in em units so it inherits the surrounding text size. */
+.brand-logo {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #1BB8BD;
+  white-space: nowrap;
+}
+
+.brand-logo-i {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  height: 0.8em;
+  width: 0.15em;
+  margin: 0 0.075em;
+}
+
+.brand-logo-i-stem {
+  width: 0.15em;
+  height: 0.525em;
+  background-color: currentColor;
+  border-radius: 0.5px;
+}
+
+.brand-logo-dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.2em;
+  height: 0.2em;
+  border-radius: 50%;
+  background: #DC0078;
+  box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220, 0, 120, 0.6);
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
