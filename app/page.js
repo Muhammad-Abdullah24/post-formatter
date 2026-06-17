@@ -46,14 +46,14 @@ const FOOTER_COLS = [
     links: [
       { label: 'LinkedIn', href: 'https://hirenum.com' },
       { label: 'WhatsApp', href: 'https://hirenum.com' },
-      { label: 'Email', href: 'mailto:info@hirenum.com' },
+      { label: 'Email', href: 'mailto:hello@hirenum.com' },
     ],
   },
   {
     title: 'Info',
     links: [
       { label: 'About Us', href: 'https://hirenum.com' },
-      { label: 'Contact', href: 'mailto:info@hirenum.com' },
+      { label: 'Contact', href: 'mailto:hello@hirenum.com' },
       { label: 'Careers', href: 'https://hirenum.com' },
       { label: 'Privacy Policy' },
     ],
@@ -583,7 +583,7 @@ export default function Home() {
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="footer-link">Hirenum</a>
               . LinkedIn personal branding for founders and leaders.
             </p>
-            <a href="mailto:info@hirenum.com" className="footer-email">info@hirenum.com</a>
+            <span className="footer-email">hello@hirenum.com</span>
           </div>
         </div>
 
