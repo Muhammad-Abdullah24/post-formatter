@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getFoldAnalysis } from '@/lib/foldline';
 
-/* ─── Text renderer — hashtag highlighting ─── */
+/* ─── Text renderer: hashtag highlighting ─── */
 function renderFormattedText(text) {
   const parts = text.split(/(#[\w\u00C0-\u024F]+)/g);
   return parts.map((part, i) =>

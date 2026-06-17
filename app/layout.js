@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "LinkedIn Post Formatter — Hirenum",
+  title: "LinkedIn Post Formatter | Hirenum",
   description: "Format, write, and optimize your LinkedIn posts.",
 };
 

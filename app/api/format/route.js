@@ -28,7 +28,7 @@ export async function POST(request) {
     );
   }
 
-  // 1) Deterministic baseline — always structurally sound, instant, and reliable.
+  // 1) Deterministic baseline, always structurally sound, instant, and reliable.
   //    This guarantees the feature does something useful even if the AI is
   //    unavailable or returns the post nearly unchanged.
   const baseline = preFormatPost(trimmed);
@@ -38,11 +38,11 @@ export async function POST(request) {
   let source = 'deterministic';
 
   // Short-circuit: the post is already perfectly structured AND already has
-  // emphasis. There is genuinely nothing to add — skip the AI call entirely
+  // emphasis. There is genuinely nothing to add, so skip the AI call entirely
   // and let the UI show the honest "already optimized" state.
   const alreadyPerfect = baseline.trim() === trimmed && baselineIssues === 0 && BOLD_RE.test(baseline);
 
-  // 2) AI enhancement layer — adds bold emphasis and lifts a strong hook.
+  // 2) AI enhancement layer: adds bold emphasis and lifts a strong hook.
   //    Best-effort: any failure falls back to the deterministic baseline.
   if (!alreadyPerfect && process.env.OPENAI_API_KEY) {
     try {

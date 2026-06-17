@@ -625,7 +625,7 @@ body::before {
   top: calc(var(--nav-height) + 24px);
 }
 
-/* preview-scroll base — background set by LinkedIn-specific rule below */
+/* preview-scroll base: background set by LinkedIn-specific rule below */
 .preview-scroll {
   padding: 16px;
   display: flex;
@@ -667,7 +667,7 @@ body::before {
 
 
 /* ═══════════════════════════════════════════════════════════
-   LinkedIn Post Card — Pixel-perfect replica
+   LinkedIn Post Card: Pixel-perfect replica
    Font stack matches LinkedIn's actual UI
 ═══════════════════════════════════════════════════════════ */
 
@@ -950,7 +950,7 @@ body::before {
 .li-post-text {
   font-size: 14px;
   font-weight: 400;
-  line-height: 1.43; /* 20px at 14px — matches LinkedIn exactly */
+  line-height: 1.43; /* 20px at 14px, matches LinkedIn exactly */
   color: rgba(0, 0, 0, 0.9);
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -1289,7 +1289,7 @@ body::before {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* ── Footer — see .footer-* classes near end of file ── */
+/* ── Footer: see .footer-* classes near end of file ── */
 
 
 /* ── Scrollbar ── */

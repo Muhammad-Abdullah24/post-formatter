@@ -380,7 +380,7 @@ export default function Home() {
                     onClick={() => setFormatOpen(true)}
                     disabled={!text.trim() || text.trim().length < 30}
                     className="btn btn-format btn-sm"
-                    title="Let AI Format It — restructure spacing, rhythm, and emphasis for LinkedIn"
+                    title="Let AI Format It: restructure spacing, rhythm, and emphasis for LinkedIn"
                   >
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -450,7 +450,7 @@ export default function Home() {
             </section>
           </div>
 
-          {/* Right column — Preview */}
+          {/* Right column: Preview */}
           <aside id="preview" className="preview-panel">
             <div className="section-card" style={{ border: '1px solid rgba(27,184,189,0.15)' }}>
               <div className="section-card-header">
@@ -497,7 +497,7 @@ export default function Home() {
                 <h2 className="audit-card-title">Still don&apos;t know what to post?</h2>
                 <p className="audit-card-sub">
                   Book a free audit and we&apos;ll map out the content strategy to escalate
-                  your presence — sharper hooks, the right themes, and a posting rhythm
+                  your presence: sharper hooks, the right themes, and a posting rhythm
                   built around your goals.
                 </p>
               </div>
@@ -579,7 +579,7 @@ export default function Home() {
             <p className="footer-text">
               A tool by{' '}
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="footer-link">Hirenum</a>
-              {' '}— LinkedIn personal branding for founders and leaders.
+              . LinkedIn personal branding for founders and leaders.
             </p>
             <a href="mailto:info@hirenum.com" className="footer-email">info@hirenum.com</a>
           </div>

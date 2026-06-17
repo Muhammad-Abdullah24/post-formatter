@@ -71,7 +71,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
           <div>
             <h3 className="ai-format-title">Let AI Format It</h3>
             <p className="ai-format-subtitle">
-              Restructures your post for LinkedIn readability — spacing, rhythm, emphasis, and fold-line optimization. Your words stay the same.
+              Restructures your post for LinkedIn readability: spacing, rhythm, emphasis, and fold-line optimization. Your words stay the same.
             </p>
           </div>
           <button type="button" className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Close">
@@ -108,7 +108,7 @@ export default function AiFormatPanel({ text, open, onClose, onApply }) {
             <div className="ai-format-noop-icon" aria-hidden="true">✓</div>
             <p className="ai-format-noop-title">Your post is already well-structured</p>
             <p className="ai-format-noop-sub">
-              Short blocks, clean spacing, and a tight fold-line — there&apos;s nothing to reformat.
+              Short blocks, clean spacing, and a tight fold-line. There&apos;s nothing to reformat.
               You&apos;re good to publish.
             </p>
           </div>

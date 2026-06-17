@@ -181,7 +181,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   }
 
   function applyHook(hookText) {
-    // Replace the first non-empty line — the hook the reader actually sees,
+    // Replace the first non-empty line, the hook the reader actually sees,
     // and exactly what the API analyzed.
     const lines = text.split('\n');
     const idx = lines.findIndex(l => l.trim().length > 0);
