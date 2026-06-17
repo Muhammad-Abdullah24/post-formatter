@@ -1697,6 +1697,107 @@ input:focus {
 
 /* ── Style previews ── */
 
+/* ── Audit CTA ── */
+.audit-cta-section {
+  padding-top: clamp(24px, 4vw, 44px);
+  padding-bottom: clamp(4px, 1.5vw, 12px);
+  position: relative;
+}
+
+.audit-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 56px);
+  flex-wrap: wrap;
+  padding: clamp(28px, 4vw, 44px);
+  border-radius: 24px;
+  border: 1px solid rgba(27, 184, 189, 0.22);
+  background:
+    radial-gradient(130% 150% at 0% 0%, rgba(27, 184, 189, 0.10) 0%, transparent 55%),
+    radial-gradient(130% 150% at 100% 100%, rgba(220, 0, 120, 0.08) 0%, transparent 55%),
+    var(--surface);
+  box-shadow: 0 24px 60px -28px rgba(27, 184, 189, 0.40);
+}
+
+.audit-card-glow {
+  position: absolute;
+  top: -45%;
+  left: -8%;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(27, 184, 189, 0.18) 0%, rgba(220, 0, 120, 0.06) 45%, transparent 70%);
+  pointer-events: none;
+}
+
+.audit-card-content {
+  position: relative;
+  z-index: 1;
+  max-width: 580px;
+}
+
+.audit-card-eyebrow {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #1BB8BD;
+  margin-bottom: 12px;
+}
+
+.audit-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+
+.audit-card-sub {
+  font-size: clamp(14px, 1.6vw, 15px);
+  line-height: 1.6;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+.audit-card-action {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.audit-card-btn {
+  text-decoration: none;
+}
+
+.audit-card-note {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-tertiary);
+}
+
+@media (max-width: 640px) {
+  .audit-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .audit-card-action,
+  .audit-card-btn {
+    width: 100%;
+  }
+}
+
 .style-previews-section {
   padding-top: clamp(32px, 5vw, 56px);
   padding-bottom: clamp(32px, 5vw, 56px);

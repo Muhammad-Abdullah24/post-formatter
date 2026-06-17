@@ -309,7 +309,7 @@ export default function LinkedInPreview({ text }) {
           <div className="li-social-counts">
             <a href="https://www.linkedin.com/company/hirenum/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="li-reactions-row" style={{ textDecoration: 'none', color: 'inherit' }}>
               <ReactionStack />
-              <span className="li-reactions-text">Noor and 10 others</span>
+              <span className="li-reactions-text">Noor and 24 others</span>
             </a>
             <div className="li-counts-row">
               <a href="https://www.linkedin.com/company/hirenum/posts/?feedView=all" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>400 comments</a>

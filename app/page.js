@@ -20,7 +20,6 @@ const MARQUEE_ITEMS = [
   'Hook suggestions',
   'Readability scoring',
   'One-click copy',
-  'Free forever',
 ];
 
 const NAV_LINKS = [
@@ -29,6 +28,9 @@ const NAV_LINKS = [
   { href: '#ghostwriter', label: 'AI Writer' },
   { href: '#preview',     label: 'Preview' },
 ];
+
+// Where the "Book a free audit" CTA points. Swap for your booking/calendar link.
+const AUDIT_URL = 'https://hirenum.com';
 
 const FOOTER_COLS = [
   {
@@ -312,7 +314,6 @@ export default function Home() {
       <header className="hero anim-fade-up-2">
         <div className="container">
           <div className="hero-floating-badge anim-float">
-            <span className="hero-badge-tag">Free Tool</span>
             <span className="hero-badge-text">
               Built by <strong>Hirenum</strong> for LinkedIn creators
             </span>
@@ -486,6 +487,39 @@ export default function Home() {
           </aside>
         </div>
 
+        {/* ── Audit CTA ── */}
+        <section id="audit" className="audit-cta-section">
+          <div className="container">
+            <div className="audit-card hover-lift">
+              <div className="audit-card-glow" aria-hidden="true" />
+              <div className="audit-card-content">
+                <span className="audit-card-eyebrow">✦ Hirenum Strategy</span>
+                <h2 className="audit-card-title">Still don&apos;t know what to post?</h2>
+                <p className="audit-card-sub">
+                  Book a free audit and we&apos;ll map out the content strategy to escalate
+                  your presence — sharper hooks, the right themes, and a posting rhythm
+                  built around your goals.
+                </p>
+              </div>
+              <div className="audit-card-action">
+                <a
+                  href={AUDIT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-lg audit-card-btn"
+                >
+                  Book a free audit
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+                <span className="audit-card-note">No commitment · 30-minute call</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <StylePreviews text={text} />
       </main>
 
@@ -543,7 +577,7 @@ export default function Home() {
           {/* Footer bottom bar */}
           <div className="footer-bottom">
             <p className="footer-text">
-              A free tool by{' '}
+              A tool by{' '}
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="footer-link">Hirenum</a>
               {' '}— LinkedIn personal branding for founders and leaders.
             </p>
