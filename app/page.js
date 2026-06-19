@@ -6,6 +6,7 @@ import { toggleBold, toggleItalic, toggleUnderline } from '@/lib/unicode';
 import Toolbar from '@/components/Toolbar';
 import StylePreviews from '@/components/StylePreviews';
 import AiFormatPanel from '@/components/AiFormatPanel';
+import AiCoach from '@/components/AiCoach';
 import LinkedInPreview from '@/components/LinkedInPreview';
 import SmartToast from '@/components/SmartToast';
 
@@ -110,6 +111,9 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const textareaRef = useRef(null);
+  // Lets the AI coach trigger the Toolbar's hook generator (which owns the
+  // popover positioned next to its button).
+  const triggerHooksRef = useRef(null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -230,20 +234,19 @@ export default function Home() {
           <div className="nav-actions">
             <button
               onClick={toggleTheme}
-              className="btn btn-ghost btn-icon"
-              title="Toggle theme"
+              className={`btn btn-ghost btn-icon bulb-toggle ${mounted && theme === 'light' ? 'is-on' : 'is-off'}`}
+              title={mounted && theme === 'light' ? 'Turn off the lights (dark mode)' : 'Turn on the lights (light mode)'}
               aria-label="Toggle theme"
+              aria-pressed={mounted && theme === 'light'}
               style={{ borderRadius: '10px', width: '36px', height: '36px' }}
             >
-              {!mounted || theme === 'dark' ? (
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-              ) : (
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-              )}
+              {/* Yellow orb that jumps up into the bulb when the light turns on */}
+              <span className="bulb-orb" aria-hidden="true" />
+              <svg className="bulb-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+                <path d="M9 18h6"/>
+                <path d="M10 22h4"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -290,7 +293,7 @@ export default function Home() {
           <div className="editor-stack">
 
             {/* Editor */}
-            <section id="editor" className="section-card hover-lift" style={{ overflow: 'visible', zIndex: 10 }}>
+            <section id="editor" className="section-card hover-lift" style={{ overflow: 'visible', zIndex: 10, position: 'relative' }}>
               <div className="section-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Post Editor</span>
               </div>
@@ -316,6 +319,7 @@ export default function Home() {
                   onFormat={handleInstantTextUpdate}
                   canUndo={historyIndex > 0}
                   canRedo={historyIndex < history.length - 1}
+                  onRegisterHooks={(fn) => { triggerHooksRef.current = fn; }}
                 />
                 <textarea
                   ref={textareaRef}
@@ -350,20 +354,28 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+
+              <AiCoach
+                text={text}
+                onFormat={() => setFormatOpen(true)}
+                onHooks={() => triggerHooksRef.current?.()}
+              />
             </section>
 
           </div>
 
           {/* Right column: Preview */}
           <aside id="preview" className="preview-panel">
-            <div className="section-card" style={{ border: '1px solid rgba(27,184,189,0.15)' }}>
+            <div className="section-card preview-card" style={{ border: '1px solid rgba(27,184,189,0.15)' }}>
               <div className="section-card-header">
                 <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Live Preview</span>
                 <span className="card-label" style={{ color: '#0a66c2', letterSpacing: '0.1em' }}>LinkedIn</span>
               </div>
               <div className="preview-scroll">
                 <LinkedInPreview text={text} />
-                {analysis && (
+              </div>
+              {analysis && (
+                <div className="preview-analysis">
                   <div className="analysis-card">
                     <p className="card-label" style={{ marginBottom: 12, color: '#1BB8BD' }}>Hook analysis</p>
                     {analysis.hookStrength.points && analysis.hookStrength.points.length > 0 ? (
@@ -385,8 +397,8 @@ export default function Home() {
                       </p>
                     )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </aside>
         </div>

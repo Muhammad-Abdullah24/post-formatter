@@ -53,7 +53,7 @@ const tools = [
   }
 ];
 
-export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, canUndo, canRedo }) {
+export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoji, onFormat, canUndo, canRedo, onRegisterHooks }) {
   const [emojiOpen, setEmojiOpen]   = useState(false);
   const [activeCategory, setActiveCategory] = useState('Hands');
   const [hookOpen, setHookOpen]     = useState(false);
@@ -139,6 +139,12 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
       window.removeEventListener('resize', reposition);
     };
   }, [emojiOpen, hookOpen, positionFor]);
+
+  // Expose the hook generator so the AI coach can trigger it from outside the
+  // toolbar. No dep array: keep the latest closure (current text) registered.
+  useEffect(() => {
+    onRegisterHooks?.(fetchHooks);
+  });
 
   function toggleEmoji() {
     setEmojiOpen(prev => {
