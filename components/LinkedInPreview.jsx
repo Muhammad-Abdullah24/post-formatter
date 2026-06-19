@@ -276,7 +276,7 @@ export default function LinkedInPreview({ text }) {
                 </div>
                 <span className="li-degree">• 1st</span>
               </div>
-              <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen...</p>
+              <p className="li-post-headline">Co-founder Hirenum | LinkedIn Lead Gen and GTM Strategy Consultant | B2B High-Ticket Lead Generation</p>
               <div className="li-post-meta">
                 <span>10h</span>
                 <span className="li-meta-dot" aria-hidden="true">•</span>
@@ -287,7 +287,7 @@ export default function LinkedInPreview({ text }) {
             {/* Menu button */}
             <div className="li-post-menu">
               <button type="button" className="li-menu-btn" aria-label="More options">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                   <path d="M14 12a2 2 0 11-2-2 2 2 0 012 2zM4 10a2 2 0 102 2 2 2 0 00-2-2zm16 0a2 2 0 102 2 2 2 0 00-2-2z"></path>
                 </svg>
               </button>

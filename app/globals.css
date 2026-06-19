@@ -845,7 +845,10 @@ body::before {
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 440px;
+  /* Preview column is sized to render LinkedIn's real 555px desktop post card
+     at true width (555 card + 32 scroll padding + card border), so the fold-line
+     preview matches the actual feed instead of a squished column. */
+  grid-template-columns: minmax(0, 1fr) 590px;
   gap: clamp(20px, 3vw, 32px);
   align-items: start;
 }
@@ -1145,13 +1148,13 @@ body::before {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Desktop sizing */
+/* Desktop sizing — LinkedIn's desktop feed post card is 555px wide. */
 .li-feed-wrap.desktop .li-post-card {
   width: 100%;
-  max-width: 552px;
+  max-width: 555px;
 }
 
-/* Mobile sizing */
+/* Mobile sizing — phone-width feed card (iPhone logical width). */
 .li-feed-wrap.mobile .li-post-card {
   width: 100%;
   max-width: 375px;
@@ -1270,7 +1273,7 @@ body::before {
 .li-post-author {
   flex: 1;
   min-width: 0;
-  padding-right: 60px; /* space for menu buttons */
+  padding-right: 44px; /* room for the ⋯ menu, no more */
   padding-top: 1px;
 }
 
@@ -1341,8 +1344,8 @@ body::before {
 /* ── Menu (⋯ and ✕) ── */
 .li-post-menu {
   position: absolute;
-  top: 8px;
-  right: 6px;
+  top: 7px; /* centers the icon on the name row */
+  right: 8px;
   display: flex;
   align-items: center;
 }
@@ -1351,8 +1354,8 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: transparent;
   color: rgba(0, 0, 0, 0.55);
