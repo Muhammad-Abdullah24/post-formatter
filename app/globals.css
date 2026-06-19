@@ -1178,6 +1178,14 @@ body::before {
   padding: 2px 6px 2px 8px;
 }
 
+/* The mobile preview card is fixed at 375px, so the long "Insightful" label
+   would collide with "Comment". Collapse to evenly-spaced icons (same fix as
+   the narrow-viewport rule below). The gold bulb still marks the reaction. */
+.li-feed-wrap.mobile .li-action-btn span { display: none; }
+.li-feed-wrap.mobile .li-action-btn { gap: 0; padding: 9px 2px; }
+.li-feed-wrap.mobile .li-action-btn svg { width: 20px; height: 20px; }
+.li-feed-wrap.mobile .li-action-insightful-active svg { width: 22px !important; height: 22px !important; }
+
 /* ── Card shell ── */
 .li-post-card {
   background: #ffffff;
@@ -3056,5 +3064,17 @@ body,
   .li-reactions-text {
     font-size: 11px;
   }
+}
+
+/* ── Narrow viewports: on real phones the "Insightful" reaction label is too
+   long to sit beside three more labelled actions without overflowing into
+   "Comment". Collapse the action bar to clean, evenly-spaced icons so it can
+   never collide at any width. The gold bulb still marks the active reaction;
+   labels return at ≥481px where there's room. ── */
+@media (max-width: 480px) {
+  .li-action-btn span { display: none; }
+  .li-action-btn { gap: 0; padding: 10px 2px; }
+  .li-action-btn svg { width: 20px; height: 20px; }
+  .li-action-insightful-active svg { width: 22px !important; height: 22px !important; }
 }
 
