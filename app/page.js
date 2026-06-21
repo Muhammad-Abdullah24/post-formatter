@@ -39,8 +39,8 @@ const FOOTER_COLS = [
   {
     title: 'Socials',
     links: [
-      { label: 'LinkedIn', href: 'https://hirenum.com' },
-      { label: 'WhatsApp', href: 'https://hirenum.com' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/hirenum/posts/?feedView=all' },
+      { label: 'WhatsApp', href: 'https://api.whatsapp.com/' },
       { label: 'Email', href: 'mailto:hello@hirenum.com' },
     ],
   },
@@ -270,7 +270,7 @@ export default function Home() {
           <div className="hero-floating-badge anim-float">
             <span className="hero-badge-text">
               Built by{' '}
-              <span className="brand-logo">H<span className="brand-logo-i"><span className="brand-logo-i-stem" /><span className="brand-logo-dot" /></span>renum</span>
+              <span className="brand-logo">HIRENUM</span>
               {' '}for LinkedIn creators
             </span>
           </div>
@@ -457,7 +457,7 @@ export default function Home() {
             <div className="footer-brand-col">
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                 <div className="footer-logo-wrap">
-                    H<span className="footer-logo-i-wrap"><span className="footer-logo-i-stem" /><span className="footer-logo-dot" /></span>renum
+                    HIRENUM
                   </div>
               </a>
               <p className="footer-tagline">

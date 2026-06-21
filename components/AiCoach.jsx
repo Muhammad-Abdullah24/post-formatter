@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-// We only *reformat* the user's own words — never generate content. Copy is
+// We only *reformat* the user's own words, never generate content. Copy is
 // written to make that explicit ("your words stay yours").
 //
 // The coach stays hidden until there's real content to act on, then surfaces
@@ -15,7 +15,7 @@ function getCards(len) {
     cards.push({
       action: 'format',
       title: 'Make it land in the feed.',
-      body: 'Let AI restructure the spacing, line breaks, and rhythm for LinkedIn — your words stay exactly yours.',
+      body: 'Let AI restructure the spacing, line breaks, and rhythm for LinkedIn. Your words stay exactly yours.',
       cta: 'Let AI Format It',
     });
   }
@@ -23,7 +23,7 @@ function getCards(len) {
     cards.push({
       action: 'hooks',
       title: 'Not happy with how it starts?',
-      body: 'Your first line decides who keeps reading. Let AI reshape your opening into sharper hooks — same message, stronger delivery.',
+      body: 'Your first line decides who keeps reading. Let AI reshape your opening into sharper hooks. Same message, stronger delivery.',
       cta: 'Fix my hook',
     });
   }
@@ -145,7 +145,7 @@ export default function AiCoach({ text, onFormat, onHooks }) {
             className="ai-coach-fab"
             onClick={() => setOpen(true)}
             aria-label="Open Hirenum AI assistant"
-            title="Hirenum AI — formatting & hook help"
+            title="Hirenum AI: formatting & hook help"
           >
             {Orb}
           </button>
