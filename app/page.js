@@ -9,6 +9,7 @@ import AiFormatPanel from '@/components/AiFormatPanel';
 import AiCoach from '@/components/AiCoach';
 import LinkedInPreview from '@/components/LinkedInPreview';
 import SmartToast from '@/components/SmartToast';
+import FaqAccordion from '@/components/FaqAccordion';
 
 const MARQUEE_ITEMS = [
   'Fold-line preview',
@@ -274,9 +275,11 @@ export default function Home() {
               {' '}for LinkedIn creators
             </span>
           </div>
-          <h1 className="hero-title">
-            LinkedIn Post{' '}
-            <span className="hero-title-accent">Formatter</span>
+          <h1 className="hero-title anim-fade-up" style={{ animationDelay: '0.1s', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0a66c2" width="1em" height="1em" aria-label="LinkedIn" style={{ transform: 'translateY(-2px)' }}>
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+            Post <span className="hero-title-accent text-shimmer">Formatter</span>
           </h1>
           <p className="hero-sub">
             Write, format, and preview your posts before you publish.
@@ -437,6 +440,179 @@ export default function Home() {
         </section>
 
         <StylePreviews text={text} />
+
+        {/* ── Section 1 — Hook Headline ── */}
+        <section className="content-section" style={{ paddingBottom: 'clamp(30px, 5vw, 60px)' }}>
+          <div className="container">
+            <div className="content-hero anim-fade-up">
+              <h2 className="content-hero-headline text-shimmer">
+                Most LinkedIn posts die in the first line.
+              </h2>
+              <p className="content-hero-sub">
+                Not because the writing is bad. Because the hook doesn&apos;t stop the scroll, the formatting buries the point, or the post gets cut off before anyone reaches the good part. This tool fixes all three before you hit publish.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 2 — Fold Line Explainer ── */}
+        <section className="content-section">
+          <div className="container">
+            <div className="content-grid-split">
+              <div className="content-sticky-side">
+                <span className="content-eyebrow">✦ The Fold Line</span>
+                <h2 className="content-section-title">
+                  The fold line is the most important line in your post. Most people don&apos;t know where it is.
+                </h2>
+              </div>
+              <div className="glass-panel hover-glow">
+                <div className="content-body">
+                  <p>
+                    LinkedIn cuts your post off after roughly 210 characters on mobile and 3 lines on desktop. Everything after that sits behind a &ldquo;...more&rdquo; button that most readers never tap. That means your second sentence (not your hook) is often the last thing a casual scroller actually reads.
+                  </p>
+                  <p>
+                    The fold line preview in this tool shows you exactly where LinkedIn draws that line, on both mobile and desktop, in real time as you type. Move your strongest idea above it. Let the rest breathe below.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 3 — Hook Scoring (Reversed + Bento Box) ── */}
+        <section className="content-section" style={{ position: 'relative' }}>
+          {/* Ambient Glow */}
+          <div className="glow-orb" style={{ top: '10%', right: '-150px', background: 'radial-gradient(circle, rgba(220,0,120,0.1) 0%, rgba(27,184,189,0.05) 50%, transparent 70%)' }} aria-hidden="true" />
+          
+          <div className="container">
+            <div className="content-grid-split is-reversed">
+              <div className="content-sticky-side">
+                <span className="content-eyebrow">✦ Hook Analysis</span>
+                <h2 className="content-section-title">
+                  A strong hook isn&apos;t a question mark. It&apos;s a reason to keep reading.
+                </h2>
+                <div className="content-body">
+                  <p>
+                    The oldest advice on LinkedIn hooks: &ldquo;end your first line with a question&rdquo; or &ldquo;start with a number&rdquo;. This isn&apos;t wrong, but it&apos;s incomplete. A question that&apos;s vague stops nobody. A number with no stakes doesn&apos;t either.
+                  </p>
+                  <p>
+                    The hook analyzer in this tool scores your first line against these signals, not as a gimmick, but as a fast gut-check before you publish to 3,000 connections.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="bento-grid">
+                <div className="bento-card">
+                  <div className="bento-icon">💡</div>
+                  <p className="bento-text">A specific claim they haven&apos;t heard before.</p>
+                </div>
+                <div className="bento-card">
+                  <div className="bento-icon">⚡️</div>
+                  <p className="bento-text">A tension they recognize from their own work.</p>
+                </div>
+                <div className="bento-card">
+                  <div className="bento-icon">📈</div>
+                  <p className="bento-text">A concrete result with a named context, not &ldquo;I increased revenue&rdquo; but &ldquo;we hit 4x pipeline in 6 weeks.&rdquo;</p>
+                </div>
+                <div className="bento-card">
+                  <div className="bento-icon">🎁</div>
+                  <p className="bento-text">An opener that tells them exactly what they&apos;ll get if they keep reading.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 4 — Formatting Philosophy ── */}
+        <section className="content-section">
+          <div className="container">
+            <div className="content-grid-split">
+              <div className="content-sticky-side">
+                <span className="content-eyebrow">✦ Formatting</span>
+                <h2 className="content-section-title">
+                  Bold everything and nothing stands out.
+                </h2>
+              </div>
+              <div className="glass-panel hover-glow">
+                <div className="content-body">
+                  <p>
+                    Unicode bold on LinkedIn is not Microsoft Word bold. It doesn&apos;t inherit a font; it substitutes a different Unicode character that looks heavier. That means it works everywhere LinkedIn renders text: feed, notifications, DMs, mobile, desktop.
+                  </p>
+                  <p>
+                    But most people bold too much. When everything is emphasized, nothing is. The posts that perform best treat bold the way good design treats white space: sparingly, deliberately, with a clear purpose for every mark.
+                  </p>
+                  <p>
+                    The rule that actually works: read your bolded words alone, top to bottom, like a headline. If they don&apos;t tell a coherent story on their own, you&apos;ve bolded the wrong things.
+                  </p>
+                  <p>
+                    This formatter gives you every Unicode style LinkedIn supports (bold, italic, sans-serif variants, script, strikethrough, and more) along with a live preview that shows you exactly how each one renders in the feed before anyone else sees it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 5 — Hirenum Positioning ── */}
+        <section className="content-section" style={{ position: 'relative' }}>
+          <div className="glow-orb" style={{ bottom: '0', left: '-20%', width: '800px', height: '800px' }} aria-hidden="true" />
+          <div className="container">
+            <div className="audit-card hover-lift" style={{ margin: '0 auto', maxWidth: '1000px' }}>
+              <div className="audit-card-glow" aria-hidden="true" />
+              <div className="audit-card-content">
+                <span className="audit-card-eyebrow">✦ About The Creators</span>
+                <h2 className="audit-card-title">
+                  Built by people who think about LinkedIn for a living.
+                </h2>
+                <div className="content-body" style={{ marginTop: '16px' }}>
+                  <p className="audit-card-sub" style={{ marginBottom: '12px' }}>
+                    Hirenum works with founders and executive leaders who treat LinkedIn as a serious distribution channel, not a place to post company updates and hope for the best.
+                  </p>
+                  <p className="audit-card-sub" style={{ marginBottom: '12px' }}>
+                    This tool is what we built for ourselves before we made it public. Every feature in it comes from a real problem we kept running into while producing content for clients.
+                  </p>
+                  <p className="audit-card-sub">
+                    If you&apos;re getting value from the tool and want to go deeper with a sharper content strategy, a consistent publishing rhythm, and a personal brand that actually generates pipeline, that&apos;s what we do.
+                  </p>
+                </div>
+              </div>
+              <div className="audit-card-action">
+                <a
+                  href={AUDIT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-lg audit-card-btn"
+                >
+                  Book a free audit
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginLeft: '4px' }}>
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 6 — FAQ ── */}
+        <section className="content-section">
+          <div className="container">
+            <div className="content-grid-split">
+              <div className="content-sticky-side">
+                <span className="content-eyebrow">✦ FAQ</span>
+                <h2 className="content-section-title">
+                  Frequently asked questions
+                </h2>
+                <p className="content-hero-sub" style={{ marginLeft: 0 }}>
+                  Everything you need to know about how the tool works and how LinkedIn processes formatting.
+                </p>
+              </div>
+              <div style={{ marginTop: '20px' }}>
+                <FaqAccordion />
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <AiFormatPanel

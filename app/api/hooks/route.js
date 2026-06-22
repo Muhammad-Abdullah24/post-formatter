@@ -34,7 +34,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
+    
     // The hook is the first line a reader actually sees. Use the first
     // non-empty line so a post that opens with a blank line still works, and
     // so this matches exactly what the editor replaces when a hook is applied.

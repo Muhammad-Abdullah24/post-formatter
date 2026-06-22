@@ -961,13 +961,13 @@ body::before {
     #1BB8BD 25%,
     var(--ink) 50%,
     #DC0078 75%,
-    var(--ink) 100
+    var(--ink) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: shimmer 4s linear infinite;
+  animation: shimmer 8s linear infinite;
 }
 
 .editor-stack {
@@ -2350,6 +2350,236 @@ input:focus {
 .style-preview-copy:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* ── Premium Content Sections Redesign ── */
+
+.content-section {
+  padding: clamp(60px, 8vw, 100px) 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Hero Section (Center aligned, massive) */
+.content-hero {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.content-hero-headline {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+
+.content-hero-sub {
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--ink-secondary);
+  font-family: 'Inter', sans-serif;
+  margin: 0 auto;
+  max-width: 60ch;
+}
+
+/* Split Grid Layouts */
+.content-grid-split {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: clamp(40px, 6vw, 80px);
+  align-items: start;
+}
+
+.content-grid-split.is-reversed {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .content-grid-split, .content-grid-split.is-reversed {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.content-sticky-side {
+  position: sticky;
+  top: calc(var(--nav-height) + 40px);
+}
+
+/* Premium Typography Elements */
+.content-eyebrow {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #1BB8BD, #DC0078);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 16px;
+}
+
+.content-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+
+.content-body p {
+  font-size: clamp(15px, 1.8vw, 16px);
+  line-height: 1.7;
+  color: var(--ink-secondary);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  margin: 0 0 20px;
+}
+
+.content-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Glass Cards & Bento Box */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 4vw, 40px);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bento-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.3s var(--ease-spring), border-color 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bento-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(27, 184, 189, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.bento-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(27, 184, 189, 0.1);
+  color: #1BB8BD;
+  font-size: 16px;
+}
+
+.bento-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+/* FAQ Accordion Styles */
+.faq-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.faq-item:hover {
+  border-color: rgba(27, 184, 189, 0.2);
+}
+
+.faq-item.is-open {
+  border-color: rgba(27, 184, 189, 0.4);
+  background: rgba(27, 184, 189, 0.02);
+}
+
+.faq-question-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-question-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  transition: color 0.3s;
+}
+
+.faq-item.is-open .faq-question-text {
+  color: #1BB8BD;
+}
+
+.faq-icon {
+  color: var(--ink-tertiary);
+  transition: transform 0.4s var(--ease-spring), color 0.3s;
+}
+
+.faq-item.is-open .faq-icon {
+  transform: rotate(180deg);
+  color: #1BB8BD;
+}
+
+.faq-answer-wrap {
+  /* controlled via inline styles in React for CSS Grid animation */
+}
+
+.faq-answer-text {
+  padding: 0 24px 24px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-secondary);
+  margin: 0;
 }
 
 /* ── AI Format panel ── */
