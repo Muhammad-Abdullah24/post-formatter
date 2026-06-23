@@ -52,9 +52,11 @@ export async function POST(request) {
     }
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 1500,
-      temperature: 0.75,
+      // Lower than the creative default so the score/verdict on a given hook
+      // stays stable across runs. A borderline hook shouldn't flip pass/fail.
+      temperature: 0.4,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: HOOKS_SYSTEM_PROMPT },
@@ -75,7 +77,7 @@ export async function POST(request) {
       );
     }
 
-    const { hooks, diagnosis, strongestIndex, refined } = parseHooksResponse(raw);
+    const { score, verdict, hooks, diagnosis, strongestIndex, refined } = parseHooksResponse(raw);
 
     if (hooks.length === 0) {
       return Response.json(
@@ -85,6 +87,8 @@ export async function POST(request) {
     }
 
     return Response.json({
+      score,
+      verdict,
       hooks,
       currentHook,
       diagnosis,

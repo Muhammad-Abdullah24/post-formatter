@@ -60,6 +60,8 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   const [hooks, setHooks]           = useState([]);
   const [diagnosis, setDiagnosis]   = useState('');
   const [strongestIndex, setStrongestIndex] = useState(-1);
+  const [hookScore, setHookScore]   = useState(null);
+  const [hookVerdict, setHookVerdict] = useState('needs_work');
   const [hooksLoading, setHooksLoading] = useState(false);
   const [hooksError, setHooksError] = useState('');
   // Fixed-viewport coordinates for the portaled popovers.
@@ -178,6 +180,8 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
     setHooks([]);
     setDiagnosis('');
     setStrongestIndex(-1);
+    setHookScore(null);
+    setHookVerdict('needs_work');
     setHooksError('');
     try {
       const res = await fetch('/api/hooks', {
@@ -196,15 +200,19 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
         return;
       }
 
+      const isStrong = data.verdict === 'strong';
       const list = Array.isArray(data.hooks) ? [...data.hooks] : [];
       // Append the optional refined original as a final, clearly-labelled card.
-      if (data.refined) {
+      // A strong hook needs no "refined original" — it already passed.
+      if (data.refined && !isStrong) {
         list.push({ text: data.refined, pattern: 'Refined Original', why: 'A tighter take on the hook you already wrote.' });
       }
 
       setHooks(list);
       setDiagnosis(data.diagnosis || '');
       setStrongestIndex(Number.isInteger(data.strongestIndex) ? data.strongestIndex : -1);
+      setHookScore(Number.isFinite(data.score) ? data.score : null);
+      setHookVerdict(isStrong ? 'strong' : 'needs_work');
       if (!list.length) {
         setHooksError('No hooks were generated. Try adding more detail to your post.');
       }
@@ -302,13 +310,25 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
                 ) : hooks.length > 0 ? (
                   <>
                     {diagnosis && (
-                      <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--warning)' }}>💡 Current hook diagnosis</span>
-                        <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-secondary)', fontFamily: 'Inter, sans-serif', fontStyle: 'italic' }}>{diagnosis}</p>
-                      </div>
+                      hookVerdict === 'strong' ? (
+                        <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.22)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--success)' }}>✓ Strong hook — ship it{hookScore != null ? ` · ${hookScore}/100` : ''}</span>
+                          <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-secondary)', fontFamily: 'Inter, sans-serif' }}>{diagnosis}</p>
+                        </div>
+                      ) : (
+                        <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ fontSize: 9, fontFamily: 'Outfit, sans-serif', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--warning)' }}>💡 Current hook diagnosis{hookScore != null ? ` · ${hookScore}/100` : ''}</span>
+                          <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-secondary)', fontFamily: 'Inter, sans-serif', fontStyle: 'italic' }}>{diagnosis}</p>
+                        </div>
+                      )
+                    )}
+                    {hookVerdict === 'strong' && (
+                      <span style={{ fontSize: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.04em', color: 'var(--ink-tertiary)', padding: '2px 2px' }}>
+                        Optional variants — only if you feel like experimenting.
+                      </span>
                     )}
                     {hooks.map((hook, i) => {
-                      const isStrongest = i === strongestIndex;
+                      const isStrongest = hookVerdict !== 'strong' && i === strongestIndex;
                       const tooLong = hook.text.length > PREVIEW_LIMIT;
                       return (
                         <div
