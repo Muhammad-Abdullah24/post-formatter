@@ -17,6 +17,9 @@ const MARQUEE_ITEMS = [
   'Hook suggestions',
   'Readability scoring',
   'One-click copy',
+  'Keyboard shortcuts',
+  'Rich text editing',
+  'Ideal length check',
 ];
 
 const NAV_LINKS = [
@@ -217,7 +220,8 @@ export default function Home() {
 
   const trimmedText = text.trim();
   const analysis = trimmedText ? getFoldAnalysis(trimmedText) : null;
-  const marqueeContent = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
+  // Repeat enough times to guarantee it wraps around ultra-wide monitors without a gap
+  const marqueeContent = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 
   return (
     <div className="page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)', position: 'relative', overflowX: 'hidden' }}>
@@ -245,18 +249,25 @@ export default function Home() {
           <div className="nav-actions">
             <button
               onClick={toggleTheme}
-              className={`btn btn-ghost btn-icon bulb-toggle ${mounted && theme === 'light' ? 'is-on' : 'is-off'}`}
-              title={mounted && theme === 'light' ? 'Turn off the lights (dark mode)' : 'Turn on the lights (light mode)'}
+              className={`btn btn-ghost btn-icon theme-toggle ${mounted && theme === 'light' ? 'is-light' : 'is-dark'}`}
+              title={mounted && theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               aria-label="Toggle theme"
               aria-pressed={mounted && theme === 'light'}
               style={{ borderRadius: '10px', width: '36px', height: '36px' }}
             >
-              {/* Yellow orb that jumps up into the bulb when the light turns on */}
-              <span className="bulb-orb" aria-hidden="true" />
-              <svg className="bulb-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-                <path d="M9 18h6"/>
-                <path d="M10 22h4"/>
+              <svg className="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              <svg className="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
               </svg>
             </button>
           </div>

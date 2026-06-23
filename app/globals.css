@@ -281,8 +281,9 @@ body::before {
 
 .marquee-track {
   display: flex;
+  align-items: center;
   width: max-content;
-  animation: marquee 40s linear infinite;
+  animation: marquee 65s linear infinite;
 }
 
 .marquee-track:hover {
@@ -411,54 +412,48 @@ body::before {
   animation: float 4s ease-in-out infinite;
 }
 
-/* ── Theme toggle: light bulb with a jumping yellow orb ──
-   Dark mode = bulb off (orb tucked below, invisible).
-   Light mode = orb has jumped up into the bulb and glows. */
-.bulb-toggle {
+/* ── Theme toggle: Sun and Moon ── */
+.theme-toggle {
   position: relative;
-  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.bulb-toggle .bulb-icon {
-  position: relative;
-  z-index: 2;
-  transition: color 0.4s ease, filter 0.4s ease;
-}
-
-.bulb-orb {
+.theme-toggle svg {
   position: absolute;
-  left: 50%;
-  top: 42%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #FFF6C2, #FFD43B 55%, #F2A33C);
-  box-shadow: 0 0 6px 2px rgba(255, 200, 60, 0.85), 0 0 13px 5px rgba(255, 190, 40, 0.45);
-  /* Off state: small, transparent and sitting down by the bulb base. */
-  transform: translate(-50%, 15px) scale(0.2);
-  opacity: 0;
-  z-index: 1;
-  pointer-events: none;
-  transition:
-    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.3s ease;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, color 0.4s ease;
 }
 
-/* On: the orb springs up into the glass and lights up. */
-.bulb-toggle.is-on .bulb-orb {
-  transform: translate(-50%, -50%) scale(1);
+/* Light mode (is-light class): Sun is visible, Moon is hidden */
+.theme-toggle.is-light .sun-icon {
+  transform: rotate(0deg) scale(1);
   opacity: 1;
+  color: #F59E0B;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
+}
+.theme-toggle.is-light .moon-icon {
+  transform: rotate(90deg) scale(0);
+  opacity: 0;
 }
 
-.bulb-toggle.is-on .bulb-icon {
-  color: #F4B740;
-  filter: drop-shadow(0 0 4px rgba(255, 200, 60, 0.7));
+/* Dark mode (is-dark class): Moon is visible, Sun is hidden */
+.theme-toggle.is-dark .moon-icon {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+  color: #A5B4FC;
+  filter: drop-shadow(0 0 4px rgba(165, 180, 252, 0.5));
+}
+.theme-toggle.is-dark .sun-icon {
+  transform: rotate(-90deg) scale(0);
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bulb-orb {
+  .theme-toggle svg {
     transition: opacity 0.2s ease;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none !important;
   }
 }
 
@@ -2805,7 +2800,7 @@ body,
 .footer-inner {
   position: relative;
   z-index: 1;
-  padding: clamp(40px, 6vw, 72px) 0 clamp(24px, 4vw, 40px);
+  padding: clamp(40px, 6vw, 72px) var(--component-pad) clamp(24px, 4vw, 40px);
 }
 
 .footer-grid {

@@ -458,7 +458,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               title="Ideal LinkedIn post length is 1,200–1,500 characters"
-              style={{ position: 'relative', flex: 1, height: 10, borderRadius: 99, background: 'var(--bg-secondary)', overflow: 'hidden' }}
+              style={{ position: 'relative', flex: 1, height: 10, borderRadius: 99, background: 'rgba(128, 128, 128, 0.25)', overflow: 'hidden' }}
             >
               {/* Highlighted ideal band: 1,200–1,500 maps to 80%–100% of the 0–1,500 track */}
               <div style={{ position: 'absolute', left: '80%', right: 0, top: 0, bottom: 0, background: 'rgba(16,185,129,0.22)' }} />
