@@ -32,7 +32,7 @@ const tools = [
       { key: 'bold',      title: 'Bold',          fn: toggleBold,          icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>) },
       { key: 'italic',    title: 'Italic',        fn: toggleItalic,        icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>) },
       { key: 'underline', title: 'Underline',     fn: toggleUnderline,     icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>) },
-      { key: 'strike',    title: 'Strikethrough', fn: toggleStrikethrough, icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6C16 6 14.5 4 12 4c-2.5 0-4 1.5-4 3 0 1.5 1 2.5 4 3"/><path d="M8 18c0 0 1.5 2 4 2 2.5 0 4-1.5 4-3 0-1.5-1-2.5-4-3"/></svg>) },
+      { key: 'strike',    title: 'Strikethrough', fn: toggleStrikethrough, icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 7a5 5 0 0 0-10 0c0 5 10 4 10 9a5 5 0 0 1-10 0" /><line x1="3" y1="12" x2="21" y2="12" /></svg>) },
     ]
   },
   {
@@ -78,14 +78,28 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   // being cut off before the "see more" tap.
   const PREVIEW_LIMIT = 210;
 
-  const words       = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
-  const readTime    = Math.max(1, Math.ceil(words / 200));
+  const trimmedText = text.trim();
+  const words       = trimmedText ? trimmedText.split(/\s+/).filter(Boolean).length : 0;
+  
+  let readTimeLabel = '0 sec read';
+  if (words > 0) {
+    const seconds = (words / 200) * 60;
+    if (seconds < 15) {
+      readTimeLabel = '< 15 sec read';
+    } else if (seconds < 60) {
+      const rounded = Math.round(seconds / 15) * 15;
+      readTimeLabel = rounded === 60 ? '1 min read' : `${rounded} sec read`;
+    } else {
+      const mins = Math.round(seconds / 60);
+      readTimeLabel = `${mins} min read`;
+    }
+  }
 
   // Ideal LinkedIn post length is ~1,200–1,500 characters. The meter below the
   // stats row visualizes progress toward that band and lights up inside it.
   const IDEAL_MIN = 1200;
   const IDEAL_MAX = 1500;
-  const len = text.length;
+  const len = trimmedText.length;
   const idealFillPct = Math.min(len / IDEAL_MAX, 1) * 100;
   let idealColor = '#1BB8BD';
   let idealLabel = `${(IDEAL_MIN - len).toLocaleString()} TO IDEAL`;
@@ -398,9 +412,9 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               {[
-                { label: `${text.length} chars` },
-                { label: `${words} words` },
-                { label: `${readTime} min read` },
+                { label: `${len} char${len === 1 ? '' : 's'}` },
+                { label: `${words} word${words === 1 ? '' : 's'}` },
+                { label: readTimeLabel },
               ].map(s => (
                 <span key={s.label} style={{ fontSize: 10, color: 'var(--ink-tertiary)', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.1em' }}>
                   {s.label}
@@ -412,11 +426,11 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
               fontFamily: 'Outfit, sans-serif',
               fontWeight: 700,
               letterSpacing: '0.1em',
-              color: (3000 - text.length) < 0 ? 'var(--danger)' : 'var(--ink-tertiary)'
+              color: (3000 - len) < 0 ? 'var(--danger)' : 'var(--ink-tertiary)'
             }}>
-              {3000 - text.length >= 0
-                ? `${3000 - text.length} CHARS REMAINING`
-                : `${text.length - 3000} CHARS OVER LIMIT`}
+              {3000 - len >= 0
+                ? `${3000 - len} CHARS REMAINING`
+                : `${len - 3000} CHARS OVER LIMIT`}
             </span>
           </div>
 
@@ -424,7 +438,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               title="Ideal LinkedIn post length is 1,200–1,500 characters"
-              style={{ position: 'relative', flex: 1, height: 5, borderRadius: 99, background: 'var(--bg-secondary)', overflow: 'hidden' }}
+              style={{ position: 'relative', flex: 1, height: 10, borderRadius: 99, background: 'var(--bg-secondary)', overflow: 'hidden' }}
             >
               {/* Highlighted ideal band: 1,200–1,500 maps to 80%–100% of the 0–1,500 track */}
               <div style={{ position: 'absolute', left: '80%', right: 0, top: 0, bottom: 0, background: 'rgba(16,185,129,0.22)' }} />

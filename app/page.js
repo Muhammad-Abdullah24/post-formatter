@@ -41,7 +41,7 @@ const FOOTER_COLS = [
     title: 'Socials',
     links: [
       { label: 'LinkedIn', href: 'https://www.linkedin.com/company/hirenum/posts/?feedView=all' },
-      { label: 'WhatsApp', href: 'https://api.whatsapp.com/' },
+      { label: 'WhatsApp', href: 'https://wa.me/923063624299?text=Hey%2C%20Checked%20your%20website%20and%20wanted%20to%20know%20about' },
       { label: 'Email', href: 'mailto:hello@hirenum.com' },
     ],
   },
@@ -158,13 +158,25 @@ export default function Home() {
     const scrollTop = el.scrollTop; // Save scroll position
     let newText = '';
     if (start === end) {
-      newText = fn(text);
+      // Apply to the current line if nothing is selected
+      let lineStart = text.lastIndexOf('\n', start - 1);
+      lineStart = lineStart === -1 ? 0 : lineStart + 1;
+      let lineEnd = text.indexOf('\n', start);
+      if (lineEnd === -1) lineEnd = text.length;
+
+      const currentLine = text.slice(lineStart, lineEnd);
+      const transformedLine = fn(currentLine);
+      
+      newText = text.slice(0, lineStart) + transformedLine + text.slice(lineEnd);
       handleInstantTextUpdate(newText);
+      
+      const lengthDiff = transformedLine.length - currentLine.length;
+      const newCursor = Math.max(lineStart, start + lengthDiff);
+      
       setTimeout(() => {
         el.focus();
-        // Since unicode bold conversion can increase text length, we keep cursor position
-        el.setSelectionRange(start, start);
-        el.scrollTop = scrollTop; // Restore scroll position
+        el.setSelectionRange(newCursor, newCursor);
+        el.scrollTop = scrollTop;
       }, 0);
     } else {
       const selectedText = text.slice(start, end);
@@ -203,7 +215,8 @@ export default function Home() {
     }
   };
 
-  const analysis = text ? getFoldAnalysis(text) : null;
+  const trimmedText = text.trim();
+  const analysis = trimmedText ? getFoldAnalysis(trimmedText) : null;
   const marqueeContent = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 
   return (
@@ -268,7 +281,9 @@ export default function Home() {
           <div className="hero-floating-badge anim-float">
             <span className="hero-badge-text">
               Built by{' '}
-              <span className="brand-logo">HIRENUM</span>
+              <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <span className="brand-logo">HIRENUM</span>
+              </a>
               {' '}for LinkedIn creators
             </span>
           </div>
@@ -279,7 +294,7 @@ export default function Home() {
             Post <span className="hero-title-accent text-shimmer">Formatter</span>
           </h1>
           <p className="hero-sub">
-            Write, format, and preview your posts before you publish.
+            Write, format, and preview your LinkedIn posts before you publish.
             See exactly where your content folds, score your hook, and publish with confidence.
           </p>
         </div>
@@ -369,10 +384,14 @@ export default function Home() {
             <div className="section-card preview-card" style={{ border: '1px solid rgba(27,184,189,0.15)' }}>
               <div className="section-card-header">
                 <span className="card-label" style={{ color: '#1BB8BD' }}>✦ Live Preview</span>
-                <span className="card-label" style={{ color: '#0a66c2', letterSpacing: '0.1em' }}>LinkedIn</span>
+                <span style={{ display: 'flex', alignItems: 'center' }} title="LinkedIn">
+                  <svg viewBox="-1 -1 26 26" width="22" height="22" fill="#0a66c2">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </span>
               </div>
               <div className="preview-scroll">
-                <LinkedInPreview text={text} />
+                <LinkedInPreview text={trimmedText} />
               </div>
               {analysis && (
                 <div className="preview-analysis">
@@ -672,7 +691,7 @@ export default function Home() {
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="footer-link">Hirenum</a>
               . LinkedIn personal branding for founders and leaders.
             </p>
-            <span className="footer-email">hello@hirenum.com</span>
+            <a href="mailto:hello@hirenum.com" className="footer-email">hello@hirenum.com</a>
           </div>
         </div>
 

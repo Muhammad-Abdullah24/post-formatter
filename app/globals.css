@@ -2970,10 +2970,9 @@ body,
 
 .footer-email {
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--ink-tertiary);
   text-decoration: none;
   transition: color 0.2s ease;
