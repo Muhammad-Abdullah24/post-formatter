@@ -186,44 +186,6 @@ body::before {
   flex-shrink: 0;
 }
 
-.nav-logo-wrap {
-  font-family: 'Outfit', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: #1BB8BD;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.nav-logo-i-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: flex-end;
-  height: 14.5px;
-  width: 3.8px;
-  margin: 0 1.8px;
-  vertical-align: baseline;
-}
-
-.nav-logo-i-stem {
-  width: 3.8px;
-  height: 9.5px;
-  background-color: currentColor;
-  border-radius: 1px;
-}
-
-.nav-logo-dot {
-  position: absolute;
-  top: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 3px;
-  border-radius: 1px;
-  background: #DC0078;
-  box-shadow: 0 0 6px #DC0078, 0 0 12px rgba(220,0,120,0.6);
-}
 
 .nav-divider {
   width: 1px;

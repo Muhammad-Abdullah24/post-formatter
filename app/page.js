@@ -219,10 +219,7 @@ export default function Home() {
         <div className="container nav-inner">
           <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
             <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" className="nav-brand">
-              {/* Hirenum logo: H + dotless-ı-with-magenta-dot + renum */}
-              <div className="nav-logo-wrap">
-                H<span className="nav-logo-i-wrap"><span className="nav-logo-i-stem" /><span className="nav-logo-dot" /></span>renum
-              </div>
+              <img src="/hirenum-logo.png" alt="Hirenum" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
               <span className="nav-divider" />
               <span className="nav-product">Post Formatter</span>
             </a>
@@ -632,9 +629,9 @@ export default function Home() {
             {/* Brand column */}
             <div className="footer-brand-col">
               <a href="https://hirenum.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <div className="footer-logo-wrap">
-                    HIRENUM
-                  </div>
+                <div>
+                  <img src="/hirenum-logo.png" alt="Hirenum" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
+                </div>
               </a>
               <p className="footer-tagline">
                 LinkedIn personal branding for founders and executive leaders.
