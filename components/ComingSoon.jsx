@@ -13,11 +13,26 @@ const TEASERS = [
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Emails that bypass the waitlist and unlock the site immediately. Compared
+// case-insensitively. Add more here to grant early access to specific people.
+const ACCESS_EMAILS = new Set(['hello@hirenum.com']);
+
+// Once granted, we remember it so the overlay stays dismissed on refresh.
+const ACCESS_KEY = 'cs-access-granted';
+
 export default function ComingSoon() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error | granted
   const [message, setMessage] = useState('');
   const [teaser, setTeaser] = useState(0);
+  const [granted, setGranted] = useState(false);
+
+  // Restore a previously granted session so insiders aren't gated again.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(ACCESS_KEY) === 'true') {
+      setGranted(true);
+    }
+  }, []);
 
   // Cycle the teaser line every few seconds for a bit of movement.
   useEffect(() => {
@@ -25,12 +40,13 @@ export default function ComingSoon() {
     return () => clearInterval(id);
   }, []);
 
-  // Lock background scroll while the overlay is up.
+  // Lock background scroll while the overlay is up (released once access is granted).
   useEffect(() => {
+    if (granted) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
-  }, []);
+  }, [granted]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -38,6 +54,15 @@ export default function ComingSoon() {
     if (!EMAIL_RE.test(trimmed)) {
       setStatus('error');
       setMessage('That email doesn\'t look right. Mind checking it?');
+      return;
+    }
+
+    // Allow-listed emails skip the waitlist and unlock the site on the spot.
+    if (ACCESS_EMAILS.has(trimmed.toLowerCase())) {
+      try { localStorage.setItem(ACCESS_KEY, 'true'); } catch {}
+      setStatus('granted');
+      setMessage('Access granted. Welcome in.');
+      setTimeout(() => setGranted(true), 1100);
       return;
     }
 
@@ -62,6 +87,9 @@ export default function ComingSoon() {
       setMessage('Network hiccup. Check your connection and try again.');
     }
   }
+
+  // Access granted: remove the gate entirely so the app works normally.
+  if (granted) return null;
 
   return (
     <div className="cs-overlay" role="dialog" aria-modal="true" aria-label="Coming soon">
@@ -89,7 +117,7 @@ export default function ComingSoon() {
           ))}
         </div>
 
-        {status === 'success' ? (
+        {status === 'success' || status === 'granted' ? (
           <div className="cs-success">
             <div className="cs-success-check" aria-hidden="true">✓</div>
             <p className="cs-success-text">{message}</p>
