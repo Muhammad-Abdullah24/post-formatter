@@ -33,14 +33,6 @@ const AUDIT_URL = 'https://hirenum.com';
 
 const FOOTER_COLS = [
   {
-    title: 'Resources',
-    links: [
-      { label: 'Blog', href: 'https://hirenum.com' },
-      { label: 'Post Formatter', href: '#' },
-      { label: 'Hook Generator', href: '#editor' },
-    ],
-  },
-  {
     title: 'Socials',
     links: [
       { label: 'LinkedIn', href: 'https://www.linkedin.com/company/hirenum/posts/?feedView=all' },
