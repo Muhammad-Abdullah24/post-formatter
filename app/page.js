@@ -29,7 +29,7 @@ const NAV_LINKS = [
 ];
 
 // Where the "Book a free audit" CTA points. Swap for your booking/calendar link.
-const AUDIT_URL = 'https://hirenum.com';
+const AUDIT_URL = 'https://hirenum.com/#linkedin-audit';
 
 const FOOTER_COLS = [
   {
