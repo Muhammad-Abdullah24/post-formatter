@@ -235,7 +235,7 @@ export default function Toolbar({ text, onApply, onUndo, onRedo, onClear, onEmoj
   }
 
   return (
-    <div style={{ borderBottom: '1px solid var(--glass-border)' }}>
+    <div style={{ borderBottom: '1px solid var(--card-divider)' }}>
 
       {/* Tool row */}
       <div

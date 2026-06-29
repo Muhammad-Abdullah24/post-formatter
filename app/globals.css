@@ -12,6 +12,10 @@
   --border-color: rgba(15, 23, 42, 0.08);
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(15, 23, 42, 0.06);
+  /* Bold, brand-tinted edges/dividers + glow for the editor & preview cards */
+  --card-edge: rgba(27, 184, 189, 0.35);
+  --card-divider: rgba(27, 184, 189, 0.24);
+  --card-glow: 0 0 0 1px rgba(27, 184, 189, 0.14), 0 6px 28px rgba(27, 184, 189, 0.08);
   --nav-bg: rgba(248, 250, 252, 0.85);
   --card-bg: #ffffff;
   --radius: 10px;
@@ -54,6 +58,11 @@
   --border-color: rgba(255, 255, 255, 0.045);
   --glass-bg: rgba(18, 20, 28, 0.92);
   --glass-border: rgba(255, 255, 255, 0.04);
+  /* Bold, brand-tinted edges/dividers + glow so the editor & preview cards
+     pop off the near-black background. */
+  --card-edge: rgba(27, 184, 189, 0.45);
+  --card-divider: rgba(27, 184, 189, 0.30);
+  --card-glow: 0 0 0 1px rgba(27, 184, 189, 0.22), 0 6px 36px rgba(27, 184, 189, 0.14);
   --nav-bg: rgba(9, 10, 15, 0.95);
   --card-bg: #12141c;
 
@@ -942,21 +951,21 @@ body::before {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid var(--glass-border);
+  border: 1.5px solid var(--card-edge);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--card-glow), var(--shadow-sm);
   transition: border-color 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
 }
 
 .section-card:hover {
-  border-color: rgba(27, 184, 189, 0.18);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(27, 184, 189, 0.65);
+  box-shadow: 0 0 0 1px rgba(27, 184, 189, 0.4), 0 8px 46px rgba(27, 184, 189, 0.22), var(--shadow-md);
 }
 
 .section-card-header {
   padding: 22px var(--component-pad) 18px;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--card-divider);
   background: transparent;
   display: flex;
   align-items: center;
@@ -1007,7 +1016,7 @@ body::before {
 .preview-analysis {
   flex: 0 0 auto;
   padding: 16px;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid var(--card-divider);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   background: inherit;
 }
@@ -1032,7 +1041,7 @@ body::before {
 
 .editor-footer {
   padding: 14px var(--component-pad);
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid var(--card-divider);
   display: flex;
   gap: 10px;
   align-items: center;
@@ -2805,7 +2814,7 @@ body,
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr repeat(3, auto);
+  grid-template-columns: 1fr repeat(2, auto);
   gap: clamp(28px, 5vw, 64px);
   align-items: start;
   margin-bottom: 40px;
@@ -2893,6 +2902,33 @@ body,
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Center-aligned column (e.g. Socials) */
+.footer-col--centered {
+  text-align: center;
+}
+.footer-col--centered .footer-col-links {
+  align-items: center;
+}
+
+/* Social links: official icon only */
+.footer-col-link--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s var(--ease-spring), opacity 0.2s ease;
+}
+.footer-col-link--icon svg {
+  width: 22px;
+  height: 22px;
+}
+.footer-col-link--icon::after {
+  display: none;
+}
+.footer-col-link--icon:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
 }
 
 .footer-col-link {
