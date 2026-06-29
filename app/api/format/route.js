@@ -64,7 +64,10 @@ export async function POST(request) {
   if (!alreadyPerfect && process.env.OPENAI_API_KEY) {
     try {
       const completion = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        // Restructuring + light copy-edit is a harder judgment task than adding
+        // bold; gpt-4o handles thought boundaries far better than gpt-4o-mini.
+        // Drop back to 'gpt-4o-mini' here if you need to cut per-call cost.
+        model: 'gpt-4o',
         max_tokens: 2048,
         temperature: 0.3,
         messages: [
