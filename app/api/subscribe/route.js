@@ -1,11 +1,16 @@
 import { appendFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { rateLimit, clientKey, tooManyRequests } from '@/lib/rate-limit';
 
 // Light-touch email validation. We're not trying to RFC-5322 this, just keep
 // out obvious junk before we store/log it.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request) {
+  // Throttle signups to blunt spam/abuse of the waitlist.
+  const rl = await rateLimit(`subscribe:${clientKey(request)}`, { limit: 5, windowMs: 60_000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter);
+
   let email = '';
   try {
     const body = await request.json();

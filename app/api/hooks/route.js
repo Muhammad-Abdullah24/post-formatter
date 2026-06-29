@@ -1,5 +1,10 @@
 import OpenAI from 'openai';
 import { HOOKS_SYSTEM_PROMPT, buildHooksPrompt, parseHooksResponse } from '@/lib/ai-prompts';
+import { rateLimit, clientKey, tooManyRequests, MAX_POST_CHARS } from '@/lib/rate-limit';
+
+// Uses gpt-4o (pricier); give it headroom but bound the request.
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,6 +16,10 @@ const MAX_HOOK_INPUT = 250;
 
 export async function POST(request) {
   try {
+    // gpt-4o is the most expensive call in the app — throttle it the hardest.
+    const rl = await rateLimit(`hooks:${clientKey(request)}`, { limit: 10, windowMs: 60_000 });
+    if (!rl.allowed) return tooManyRequests(rl.retryAfter);
+
     if (!process.env.OPENAI_API_KEY) {
       return Response.json(
         { error: 'Hook suggestions are unavailable: the server is missing its OpenAI API key.' },
@@ -32,6 +41,14 @@ export async function POST(request) {
       return Response.json(
         { error: 'Write at least a few sentences in the editor so hooks can match your post.' },
         { status: 400 }
+      );
+    }
+
+    // The whole post is sent to the model — cap it to bound token cost.
+    if (trimmed.length > MAX_POST_CHARS) {
+      return Response.json(
+        { error: `That post is too long (max ${MAX_POST_CHARS.toLocaleString()} characters).` },
+        { status: 413 }
       );
     }
     

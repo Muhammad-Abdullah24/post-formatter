@@ -1,6 +1,11 @@
 import OpenAI from 'openai';
 import { FORMAT_SYSTEM_PROMPT, buildFormatPrompt } from '@/lib/ai-prompts';
 import { analyzePostStructure, preFormatPost, sanitizeFormattedOutput, preservesOriginalContent, stripForeignHashtags, removeInventedBlocks } from '@/lib/format-utils';
+import { rateLimit, clientKey, tooManyRequests, MAX_POST_CHARS } from '@/lib/rate-limit';
+
+// Calls a paid model; give it room without letting a request hang forever.
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,6 +18,10 @@ function issueCount(text) {
 }
 
 export async function POST(request) {
+  // Per-IP throttle so one client can't run up the OpenAI bill.
+  const rl = await rateLimit(`format:${clientKey(request)}`, { limit: 20, windowMs: 60_000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter);
+
   let trimmed = '';
   try {
     const body = await request.json();
@@ -25,6 +34,14 @@ export async function POST(request) {
     return Response.json(
       { error: 'Write at least a few sentences before using Let AI Format It.' },
       { status: 400 }
+    );
+  }
+
+  // Cap input before it reaches the model — bounds token cost and latency.
+  if (trimmed.length > MAX_POST_CHARS) {
+    return Response.json(
+      { error: `That post is too long to format (max ${MAX_POST_CHARS.toLocaleString()} characters).` },
+      { status: 413 }
     );
   }
 
