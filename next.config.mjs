@@ -13,6 +13,16 @@ const nextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'formatter.hirenum.com' }],
+        destination: 'https://hirenum.com/post-formatter',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
